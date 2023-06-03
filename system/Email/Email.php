@@ -1854,19 +1854,33 @@ class Email
 
         $ssl = '';
 
-        if ($this->SMTPPort === 465) {
+        /*if ($this->SMTPPort === 465) {
             $ssl = 'tls://';
         } elseif ($this->SMTPCrypto === 'ssl') {
             $ssl = 'ssl://';
-        }
+        }*/
 
-        $this->SMTPConnect = fsockopen(
+        /*$this->SMTPConnect = fsockopen(
             $ssl . $this->SMTPHost,
             $this->SMTPPort,
             $errno,
             $errstr,
             $this->SMTPTimeout
-        );
+        );*/
+
+        $context = stream_context_create([
+            'ssl' => [
+                'verify_peer' => false,
+                'verify_peer_name' => false
+            ]
+        ]);
+
+
+        $this->SMTPConnect = stream_socket_client($ssl.$this->SMTPHost . ':' 
+                                        . $this->SMTPPort,
+                                        $errno,
+                                        $errstr,
+                                        $this->SMTPTimeout,STREAM_CLIENT_CONNECT, $context);
 
         if (! is_resource($this->SMTPConnect)) {
             $this->setErrorMessage(lang('Email.SMTPError', [$errno . ' ' . $errstr]));

@@ -13,7 +13,7 @@
 
                                   <div class="col-lg-5">
 
-                                    <input id="nume_medic" name="nume_medic" type="text" placeholder="Nume" class="form-control" required data-parsley-error-message="Campul este obligatoriu"> 
+                                    <input id="nume" name="nume" value="{nume}" type="text" placeholder="Nume" class="form-control" required data-parsley-error-message="Campul este obligatoriu"> 
 
                                   </div>
 
@@ -26,7 +26,7 @@
 
                                   <div class="col-lg-5">
 
-									<input id="prenume_medic" name="prenume_medic" type="text" placeholder="Prenume" class="form-control" required data-parsley-error-message="Campul este obligatoriu"> 
+									<input id="prenume" name="prenume" value="{prenume}" type="text" placeholder="Prenume" class="form-control" required data-parsley-error-message="Campul este obligatoriu"> 
 
                                   </div>
 
@@ -38,7 +38,7 @@
 
                                   <div class="col-lg-5">
 
-									<input id="cnp" name="cnp" type="text"  placeholder="CNP" class="form-control" onkeyup="validateCNP()" required data-parsley-error-message="Campul este obligatoriu"> 
+									<input id="cnp" name="cnp" value="{cnp}" type="text"  placeholder="CNP" class="form-control" onkeyup="validateCNP()" required data-parsley-error-message="Campul este obligatoriu"> 
 
                                   </div>
 
@@ -46,38 +46,135 @@
 
 								<div class="form-group">
 
-                                  <label class="col-lg-2 control-label">Specializare</label>
+                                  <label class="col-lg-2 control-label">Localitate</label>
 
                                   <div class="col-lg-5">
 
-									<input id="specializare" name="specializare" type="text" placeholder="Specializare" class="form-control" required data-parsley-error-message="Campul este obligatoriu"> 
+									<input id="localitate" name="localitate" value="{localitate}" type="text" placeholder="Localitate" class="form-control" required data-parsley-error-message="Campul este obligatoriu"> 
 
                                   </div>
 
                                 </div>
 
+								<div class="form-group">
+
+									<label class="col-lg-2 control-label">Județ</label>
+
+									<div class="col-lg-5">
+
+										<input id="judet" name="judet" value="{judet}" type="text" placeholder="Județ" class="form-control" required data-parsley-error-message="Campul este obligatoriu"> 
+
+									</div>
+
+								</div>
+
+								<div class="form-group">
+
+									<label class="col-lg-2 control-label">Strada</label>
+
+									<div class="col-lg-5">
+
+										<input id="strada" name="strada" value="{strada}" type="text" placeholder="Strada" class="form-control" required data-parsley-error-message="Campul este obligatoriu"> 
+
+									</div>
+
+								</div>
+
+								<div class="form-group">
+
+									<label class="col-lg-2 control-label">Bloc</label>
+
+									<div class="col-lg-5">
+
+										<input id="bloc" name="bloc" value="{bloc}" type="text" placeholder="Bloc" class="form-control" required data-parsley-error-message="Campul este obligatoriu"> 
+
+									</div>
+
+								</div>
+
+								<div class="form-group">
+
+									<label class="col-lg-2 control-label">Scara</label>
+
+									<div class="col-lg-5">
+
+										<input id="bloc" name="scara" value="{scara}" type="text" placeholder="Scara" class="form-control" required data-parsley-error-message="Campul este obligatoriu"> 
+
+									</div>
+
+								</div>
+
+								<div class="form-group">
+
+									<label class="col-lg-2 control-label">Etaj</label>
+
+									<div class="col-lg-5">
+
+										<input id="etaj" name="etaj" value="{etaj}" type="text" placeholder="Etaj" class="form-control" required data-parsley-error-message="Campul este obligatoriu"> 
+
+									</div>
+
+								</div>
 								
-								
-							
-									<div class="form-group">
+								<div class="form-group">
+
+									<label class="col-lg-2 control-label">Apartament</label>
+
+									<div class="col-lg-5">
+
+										<input id="apartament" name="apartament" value="{apartament}" type="text" placeholder="Apartament" class="form-control" required data-parsley-error-message="Campul este obligatoriu"> 
+
+									</div>
+
+								</div>
+
+								<div class="form-group">
+
+									<label class="col-lg-2 control-label">Număr</label>
+
+									<div class="col-lg-5">
+
+										<input id="numar" name="numar" value="{numar}" type="text" placeholder="Număr" class="form-control" required data-parsley-error-message="Campul este obligatoriu"> 
+
+									</div>
+
+								</div>								
+
+								<div class="form-group">
 
                                   <label class="col-lg-2 control-label">Telefon</label>
 
                                   <div class="col-lg-5">
 
-									<input id="telefon" name="telefon" type="text" placeholder="Telefon" class="form-control" required data-parsley-error-message="Campul este obligatoriu"> 
+									<input id="telefon" name="telefon" value="{telefon}" type="text" placeholder="Telefon" class="form-control" required data-parsley-error-message="Campul este obligatoriu"> 
 
                                   </div>
 
                                 </div>
-                               
-							
-							
 
-							  
+								<div class="form-group">
 
-								
-				    
+									<label class="col-lg-2 control-label">Email</label>
+
+									<div class="col-lg-5">
+
+										<input id="email" name="email" value="{email}" type="email" placeholder="Email" class="form-control" required data-parsley-error-message="Campul este obligatoriu"> 
+
+									</div>
+
+								</div>
+
+								<div class="form-group">
+
+									<label class="col-lg-2 control-label">Calificare</label>
+
+									<div class="col-lg-5">
+
+										<input id="calificare" name="calificare" value="{calificare}" type="text" placeholder="Calificare" class="form-control" required data-parsley-error-message="Campul este obligatoriu"> 
+
+									</div>
+
+								</div>								
 
 				                        <div class="form-group" style="padding-left: 25%;">
                                   <div class="col-lg-5">

@@ -38,7 +38,7 @@
 			<div class="row">
 				<div class="col-xs-12 col-sm-6 col-sm-offset-3 col-lg-4 col-lg-offset-4">
 					<form data-parsley-validate  method="post" action="{SITE_URL}/login/done">
-					{message}
+					<h4 style="color: black;">{message}</h4>
 						<div class="form-group">
 							<input style="box-shadow: 0 0 5pt 0.5pt #D3D3D3;" type="text" name="username" class="form-control simple-form-control" placeholder="Utilizator" required data-parsley-error-message="Mandatory">
 							<i class="fa fa-envelope"></i>
@@ -53,10 +53,10 @@
 						</div>
 					</form>
 					<br><br>
-					<div class="form-group" style="padding-left: 30%;">
+					<!--<div class="form-group" style="padding-left: 30%;">
 							<div style="color:black; padding-left: 30%;"></div>
 							<a href="{SITE_URL}/Login/inregistrare"><button type="submit" class="btn btn-orange submit">Creaza cont nou</button></a>
-						</div>
+						</div> -->
 				</div>
 			</div>
 		</div>

@@ -22,10 +22,13 @@ class Login extends BaseController {
 	}
 	public function index()	{	  
         $TITLE = "Login";
-		
+		if ($this->session->has('isLoggedIn') && $this->session->has('id') && $this->session->has('tip_user')) {
+			return redirect($this->redirect_routes[$this->session->get('tip_user')]);
+		}
 		return $this->parser->setData([
 			"BASE_URL" => base_url(),
-			"SITE_URL" => base_url()
+			"SITE_URL" => base_url(),
+			"message" => ""
 		])->render('login/login');		
 			
     }
@@ -45,7 +48,11 @@ class Login extends BaseController {
         $result = $this->userModel->try_login($username, $password);
 		//print_r($result); 
         if ($username && $password && $result) {
-			$this->session->set(['tip_user' => $result->tip_user]);
+			$this->session->set([
+				'id' => $result->first()['id'],
+				'tip_user' => $result->tip_user,
+				'isLoggedIn' => true
+			]);
 			return redirect($this->redirect_routes[$result->tip_user]);
 
           //$this->common->message_done("Bine ati venit!");
@@ -55,7 +62,12 @@ class Login extends BaseController {
           else if ($this->session->userdata("tip_user")=='1')  redirect('pacient'); 
 		     else  redirect('admin');*/ 
         } else {
-			throw new \Exception($username . " " . $password . " " . $result);
+			//throw new \Exception($username . " " . $password . " " . $result);
+			return $this->parser->setData([
+				'BASE_URL' => base_url(),
+				'SITE_URL' => base_url(),
+				'message' => 'Email sau parola incorecte!',
+			])->render('login/login');
 			//redirect('login');
 		}
 	}
@@ -83,10 +95,10 @@ function inregistrare_done(){
     }
 
 
-		function logout(){
+	function logout() {
 		
-		$this->session->sess_destroy();  
-		redirect('welcome'); 
+		$this->session->destroy();  
+		return redirect('login'); 
 		
 	}
 }

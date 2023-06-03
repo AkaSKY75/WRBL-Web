@@ -31,9 +31,13 @@ $routes->set404Override();
 // route since we don't have to scan directories.
 $routes->get('/', 'Welcome::index');
 $routes->get('/login', 'Login::index');
+$routes->get('/login/logout', 'Login::logout');
 $routes->get('/admin', 'Admin::index');
+$routes->get('/admin/adauga_medic', 'Admin::adauga_medic');
+$routes->post('/admin/add_done1', 'Admin::add_done1');
 $routes->post('/login/done', 'Login::done');
-$routes->post('/api/smartphone', 'API::GetDataFromSmartphone');
+$routes->post('/api/smartphone/login', 'API::SmartphoneLogin');
+$routes->post('/api/smartphone/sensors', 'API::SmartphoneSensors');
 $routes->post('/api/hl7/fhir', 'API::GetDataFromHL7FHIR');
 
 /*

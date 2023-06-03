@@ -1,10 +1,13 @@
 <?php
-namespace App\Controllers; 
+namespace App\Controllers;
+use CodeIgniter\HTTP\ResponseInterface;
+use Config\Services;
 class Admin extends BaseController {
 
 	protected $session;
 	protected $parser;
 	protected $userModel;
+	protected $validator;
 	function __construct()     
 	{         
 		//echo CI_VERSION;
@@ -27,9 +30,10 @@ class Admin extends BaseController {
 		//$this->load->library("pdf");
 		
 		//$this->load->model("session");
-		$this->session = \Config\Services::session();
-        $this->parser = \Config\Services::parser();
+		$this->session = Services::session();
+        $this->parser = Services::parser();
 		$this->userModel = model('UserModel');
+		$this->validator = Services::Validation();
 	} 
 
 	
@@ -43,6 +47,11 @@ class Admin extends BaseController {
 		
 		$medici = $this->userModel->get_all_medici();		
 
+		$HEADER = $this->parser->setData([
+			'BASE_URL' => base_url(),
+			'SITE_URL' => base_url()
+		])->render('template/header1');
+
 		$CONTENT = $this->parser->setData([
 			'USERS' => $medici,
 			'BASE_URL' => base_url()
@@ -51,10 +60,9 @@ class Admin extends BaseController {
 		//$CONTENT=$this->parser->parse("medici/medici", array("USERS"=>$medici), true);
 
 		$data = array(
-
-				    	"TITLE"=>$TITLE,
-
-						"CONTENT"=>$CONTENT				
+						"HEADER1" => $HEADER,
+				    	"TITLE" => $TITLE,
+						"CONTENT" => $CONTENT				
 
 					 );
 		return htmlspecialchars_decode($this->parser->setData($data)->render('template/full-width-medici'));	
@@ -96,7 +104,24 @@ function view_profile($id_medic){
 	}
 	function adauga_medic()	{	      
 
-               
+		$HEADER = $this->parser->setData([
+			'BASE_URL' => base_url(),
+			'SITE_URL' => base_url(),
+			'nume' => '',
+			'prenume' => '',
+			'cnp' => '',
+			'localitate' => '',
+			'judet' => '',
+			'strada' => '',
+			'bloc' => '',
+			'scara' => '',
+			'etaj' => '',
+			'apartament' => '',
+			'numar' => '',
+			'telefon' => '',
+			'email' => '',
+			'calificare' => ''
+		])->render('template/header1');
 
         //$courses=$this->db->get("lista_cursuri")->result();
 
@@ -104,25 +129,107 @@ function view_profile($id_medic){
 
         //print_r($TITLE); exit;
 
-		$CONTENT=$this->parser->parse('medici/doc_form',array(),TRUE);		
+		//$CONTENT=$this->parser->parse('medici/doc_form',array(),TRUE);
+		$CONTENT = $this->parser->setData([
+			'SITE_URL' => base_url()
+		])->render('medici/doc_form');
 
 	
 
 		$data = array(
+						"HEADER1" => $HEADER,
 
-				    	"TITLE"=>$TITLE,
+						"message" => "",
 
-						"CONTENT"=>$CONTENT				
+				    	"TITLE" => $TITLE,
+
+						"CONTENT" => $CONTENT				
 
 					 );
 
-		$this->parser->parse("template/full-width-medici",$data);	
+		return htmlspecialchars_decode($this->parser->setData($data)->render("template/full-width-medici"));	
 
     	}
 
 function add_done1(){
+	$input = $this->request->getPost();
+	/*return $this->response->setStatusCode(ResponseInterface::HTTP_OK)
+						->setJSON($json);*/
+	if (!$this->validator->setRules([
+		'nume' => 'required|min_length[1]|max_length[255]',
+		'prenume' => 'required|min_length[1]|max_length[255]',
+		'cnp' => 'required|exact_length[13]|numeric',
+		'localitate' => 'required|min_length[1]|max_length[27]',
+		'judet' => 'required|min_length[1]|max_length[15]',
+		'strada' => 'required|min_length[1]|max_length[255]',
+		'bloc' => 'required|min_length[1]|max_length[10]',
+		'scara' => 'required|min_length[1]|max_length[10]',
+		'etaj' => 'required|less_than[10000]',
+		'apartament' => 'required|less_than[100000]',
+		'numar' => 'required|min_length[1]|max_length[10]',
+		'telefon' => 'required|exact_length[10]|numeric',
+		'email' => 'required|min_length[5]|max_length[255]|valid_email',
+		'calificare' => 'required|min_length[1]|max_length[255]'
+	]/*, [
+		'nume_medic' => 'Numele medicului este obligatoriu și trebuie sa fie format din maxim 255 de caractere!'
+	]*/)->run($input)) {
 
-          $post=$this->forms->get_fields_original(array("nume_medic","prenume_medic","cnp","specializare","telefon"));
+		$HEADER = $this->parser->setData([
+			'BASE_URL' => base_url(),
+			'SITE_URL' => base_url()
+		])->render('template/header1');
+
+        //$courses=$this->db->get("lista_cursuri")->result();
+
+		$TITLE = "Adauga medic nou";	
+
+		$CONTENT = $this->parser->setData(array_merge([
+			'SITE_URL' => base_url()
+		],$input))->render('medici/doc_form');
+
+		$data = array(
+			"HEADER1" => $HEADER,
+
+			"message" => implode('</br.', $this->validator->getErrors()),
+
+			"TITLE" => $TITLE,
+
+			"CONTENT" => $CONTENT				
+
+		 );
+
+		return htmlspecialchars_decode($this->parser->setData($data)->render('template/full-width-medici'));
+
+
+	}
+	if ($this->userModel->add_medic($input, $this->session->get('id')) == null) {
+		$HEADER = $this->parser->setData([
+			'BASE_URL' => base_url(),
+			'SITE_URL' => base_url()
+		])->render('template/header1');
+
+        //$courses=$this->db->get("lista_cursuri")->result();
+
+		$TITLE = "Adauga medic nou";	
+
+		$CONTENT = $this->parser->setData(array_merge([
+			'SITE_URL' => base_url()
+		],$input))->render('medici/doc_form');
+
+		$data = array(
+			"HEADER1" => $HEADER,
+
+			"message" => "Un medic avand cnp: ".$input['cnp']." este prezent in baza de date!",
+
+			"TITLE" => $TITLE,
+
+			"CONTENT" => $CONTENT				
+
+		 );
+		 return htmlspecialchars_decode($this->parser->setData($data)->render('template/full-width-medici'));
+	}
+	return redirect('admin');
+          /*$post=$this->forms->get_fields_original(array("nume_medic","prenume_medic","cnp","specializare","telefon"));
 	
 			if($this->db->insert("medici",$post))
 
@@ -132,7 +239,7 @@ function add_done1(){
 
 				$this->common->message_error("A fost o problema la adaugare. va rugam sa incercati mai tarziu!");
 
-                redirect("admin");
+                redirect("admin");*/
 
     }
 	

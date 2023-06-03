@@ -95,36 +95,6 @@ $(function() {
 <script>
 
 function myFunction() {
-  var input, filter, table, tr, td, i;
-  //myInput este id-ul input-ului de cautare din care ia string-ul pe care il cauta
-  input = document.getElementById("myInput");
-  //filter e valoarea din input
-  filter = input.value.toUpperCase();
-  //myTable este id-ul tabelului in care va cauta string-ul
-  table = document.getElementById("myTable");
-  tr = table.getElementsByTagName("tr");
-  //cauta pe fiecare rand
-  for (i = 1; i < tr.length; i++) { 
-    // de la primul rand (1), nu din header, header-ul e 0
-    tr[i].style.display = "";
-    var found = false; 
-    //cauta in fiecare coloana de pe rand
-    for (j = 0; j < tr[i].getElementsByTagName("td").length; j++) {
-      var td = tr[i].getElementsByTagName("td")[j];
-      if (td) {
-        if (td.innerHTML.toUpperCase().indexOf(filter) > -1) { //daca se potriveste macar partial
-          found = true;
-        }
-      }
-    }
-    //daca a gasit valoarea 
-    if (found) {
-      tr[i].style.display = ""; //ramane vizibila
-    } else {
-      tr[i].style.display = "none"; //altfel nu o afiseaza
-    }
-    
-  }
 }
 
 

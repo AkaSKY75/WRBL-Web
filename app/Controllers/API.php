@@ -8,7 +8,11 @@ class API extends BaseController
     public $error_json;
     private const APP_ID = 'YzfeftUVcZ6twZw1OoVKPRFYTrGEg01Q';
     private const APP_SECRET = '4G91qSoboqYO4Y0XJ0LPPKIsq8reHdfa';
-    public function JSONValidation()
+    private $userModel;
+    function __construct() {
+      $this->userModel = model("UserModel");
+    }
+    protected function JSONValidation()
     {
         $this->error_json = null;
         if($this->request->header('Content-Type') == null) {
@@ -28,7 +32,7 @@ class API extends BaseController
             ];
             return null;
         }
-        $json = json_decode($this->request->getBody());
+        $json = json_decode($this->request->getBody(), true);
         $message = '';
         switch (json_last_error()) {
             case JSON_ERROR_NONE:
@@ -62,28 +66,75 @@ class API extends BaseController
         }
         return $json;
     }
-    public function GetDataFromSmartphone()
+    protected function GetDataFromSmartphone()
     {
         $json = $this->JSONValidation();
-        if ($json == null) {
-          return $this->response
-              ->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST)
-              ->setJSON($this->error_json);
-        }
-        try {
+        if ($json != null) {
+          try {
             //$hmac = array_key_first($json);
             foreach($json as $hmac => $body) break;
-            $hmac_new = hash_hmac('sha256', json_encode($body), self::APP_SECRET);
-            $Valori_Senzori = model('Valori_Senzori', false);
-            return $this->response
+            $hmac_new = base64_encode(hex2bin(hash_hmac('sha256', json_encode($body), self::APP_SECRET)));
+            if ($hmac == $hmac_new && array_key_exists('appid', $body) &&
+                array_key_exists('nonce', $body) && $body['appid'] == self::APP_ID &&
+                $body['nonce'] != '') {
+              return $body;
+            }
+            $this->error_json = [
+              'status' => 'failure',
+              'data' => $hmac.' '.$hmac_new,//null,
+              'message' => 'Authorization failed!'
+            ];
+            //$Valori_Senzori = model('Valori_Senzori', false);
+            /*return $this->response
                     ->setStatusCode(ResponseInterface::HTTP_OK)
-                    ->setJSON(['debug' => $hmac]);
-        } catch (\Exception $e) {
-            return $this->response
-                    ->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST)
-                    ->setJSON(['debug' => $e->getMessage()]);
+                    ->setJSON(['debug' => ['hmac' => $hmac, 'hmac_new' => $hmac_new]]);*/
+          } catch (\Exception $e) {
+              $this->error_json = [
+                'status' => 'failure',
+                'data' => null,
+                'message' => $e->getMessage()
+              ];
+          }
         }
+        return null;
     }
+
+    public function SmartphoneLogin()
+    {
+      $body = $this->GetDataFromSmartphone();
+      if ($body == null) {
+        return $this->response
+                  ->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST)
+                  ->setJSON($this->error_json);
+      }
+      if (!array_key_exists('cnp', $body) || !array_key_exists('parola', $body)) {
+        return $this->response
+                  ->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST)
+                  ->setJSON([
+                    'status' => 'failure',
+                    'data' => null,
+                    'message' => 'Missing required fields!'
+                  ]);        
+      }
+      $pacient = $this->userModel->get_pacient($body['cnp'], $body['parola']);
+      if ($pacient == null) {
+        return $this->response
+                  ->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST)
+                  ->setJSON([
+                    'status' => 'failure',
+                    'data' => null,
+                    'message' => 'CNP sau parola incorecte!'
+                  ]);
+      }
+      return $this->response
+                ->setStatusCode(ResponseInterface::HTTP_OK)
+                ->setJSON([
+                  'status' => 'success',
+                  'data' => [],
+                  'message' => ''
+                ]);
+    }
+
     public function GetDataFromHL7FHIR()
     {
         $observatie = [
