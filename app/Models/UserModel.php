@@ -25,13 +25,12 @@ Class UsersModel extends Model{
             'SMTPPort' => 465,
             'SMTPCrypto' => 'ssl',
             'SMTPUser' => 'danaurelianmircea@gmail.com',
-            'SMTPPass' => 'xamywoowcjeewcjq',
-            'mailtype'  => 'html', 
-            'charset'   => 'iso-8859-1',
+            'SMTPPass' => '',
+            'mailType'  => 'html', 
+            'charset'   => 'utf-8',
             'newline'  => "\r\n"
         ];
         $this->email = Services::email()->initialize($email_config);
-        //$this->email = Services::email();
     }
     public function try_login($email, $password) {
         $Administrator = $this->Administrator->where([
@@ -80,6 +79,24 @@ Class UsersModel extends Model{
         ])->findall();
     }
 
+    public function get_medic($id_medic) {
+        return $this->Doctor->where([
+            'id' => $id_medic
+        ])->first();
+    }
+
+    public function delete_medic($id_medic) {
+        return $this->Doctor->where([
+            'id' => $id_medic
+        ])->delete();
+    }
+
+    public function update_medic($id_medic, $data) {
+        return $this->Doctor->where([
+            'id' => $id_medic
+        ])->set($data)->update();
+    }
+
     public function check_medic_exist($cnp) {
         return $this->Doctor->where([
             'cnp' => $cnp
@@ -92,21 +109,17 @@ Class UsersModel extends Model{
         $input['id_administrator'] = $id_administrator;
         $password = random_string('alnum', 8);
         $input['parola'] = hash('sha256', $password);
-        //$this->Doctor->insert($input, false);
-        //throw new \Exception($inserted);
+        $this->Doctor->insert($input, false);
         $this->email->setFrom('danaurelianmircea@gmail.com', 'WRBL');
         $this->email->setTo($input['email']);
         
         $this->email->setSubject('Contul dvs. WRBL');
-        $this->email->setMessage("Pentru a vă putea autentifica pe platforma WRBL, accesați link-ul www.wrbl.health și folosiți datele:\nE-MAIL -> ".$input['email']."\nParola -> ".$password);
+        $this->email->setMessage("Pentru a vă putea autentifica pe platforma WRBL, accesați link-ul <a style=\"color: #4c8bf5\" href=\"http://162.0.238.94:80\">www.wrbl.health</a> și folosiți datele:<br><br>E-mail -> ".$input['email']."<br>Parola -> ".$password."<hr>");
         
-        
-        if ($this->email->send()) {
-            throw new \Exception('sent');
-        } else {
+        if (!$this->email->send()) {
             throw new \Exception($this->email->printDebugger());
         }
-        return 0;
+
         return $this->Doctor->getInsertID();
     }
 

@@ -43,7 +43,7 @@
       </thead>
       <tbody>
         {USERS}
-          <tr align="center" class="rand" >
+          <tr align="center" class="rand">
 	          <td  class="np" style="background:#eef1f8; color:#fe0000;">{nume}</td>
             <td  class="np" style="background:#eef1f8; color:#fe0000;">{prenume}</td>
             <td  class="np" style="background:#eef1f8; color:#fe0000;">{cnp}</td>
@@ -61,11 +61,13 @@
             <td  class="np" style="background:#eef1f8; color:#fe0000;">{created_at}</td>
             <td  class="np" style="background:#eef1f8; color:#fe0000;">{updated_at}</td>
             <td  class="np" style="background:#eef1f8; color:#fe0000;">{deleted_at}</td>
-						<td class="actiuni" style="background:#074486; color:white;" >													
+						<td class="actiuni" style="background:#074486; color:white;">													
 						  <a style="color:white" class="link" href="{SITE_URL}/admin/view_profile/{id}">Vezi detalii</a>&nbsp;&nbsp;&nbsp;	
 						  <a  style="color:white" class="link" href="{SITE_URL}/admin/edit_medic/{id}">Editeaza</a>&nbsp;&nbsp;&nbsp;													
 						  <a style="color:white" class="link dezactiveaza" href="{SITE_URL}/admin/dezactiveaza/{id}">Dezactiveaza</a>
 						  <a style="color:white" class="link activeaza" href="{SITE_URL}/admin/activeaza/{id}">Activeaza</a>
+              <a style="color:white" class="link activeaza" href="{SITE_URL}/admin/delete_medic/{id}">Șterge</a>
+
             </td>
           </tr>	
         {/USERS}
