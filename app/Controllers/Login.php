@@ -12,7 +12,7 @@ class Login extends BaseController {
         $this->parser = \Config\Services::parser();
 		$this->userModel = model('UserModel');
 		$this->redirect_routes = [
-			0 => 'users',
+			0 => 'medic',
 			1 => 'pacient',
 			2 => 'admin'
 		];
@@ -49,11 +49,11 @@ class Login extends BaseController {
 		//print_r($result); 
         if ($username && $password && $result) {
 			$this->session->set([
-				'id' => $result->first()['id'],
-				'tip_user' => $result->tip_user,
+				'id' => $result['id'],
+				'tip_user' => $result['tip_user'],
 				'isLoggedIn' => true
 			]);
-			return redirect($this->redirect_routes[$result->tip_user]);
+			return redirect($this->redirect_routes[$result['tip_user']]);
 
           //$this->common->message_done("Bine ati venit!");
 		

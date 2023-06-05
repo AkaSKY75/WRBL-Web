@@ -206,7 +206,7 @@ function add_done1(){
 		$data = array(
 			"HEADER1" => $HEADER,
 
-			"message" => implode('</br.', $this->validator->getErrors()),
+			"message" => implode('</br>', $this->validator->getErrors()),
 
 			"TITLE" => $TITLE,
 
@@ -235,7 +235,7 @@ function add_done1(){
 		$data = array(
 			"HEADER1" => $HEADER,
 
-			"message" => "Un medic avand cnp: ".$input['cnp']." este prezent in baza de date!",
+			"message" => "Un medic având cnp: ".$input['cnp']." este prezent în baza de date!",
 
 			"TITLE" => $TITLE,
 

@@ -1,15 +1,41 @@
 <?php
-namespace App\Controllers; 
+namespace App\Controllers;
+use Config\Services;
 class Users extends BaseController {
 
-
-
+	protected $session;
+	protected $parser;
+	protected $userModel;
+	protected $validator;
+	protected const pacientValidationRules = [
+		'nume' => 'required|min_length[1]|max_length[255]',
+		'prenume' => 'required|min_length[1]|max_length[255]',
+		'varsta' => 'required|less_than[1000]',
+		'cnp' => 'required|exact_length[13]|numeric|valid_cnp',
+		'localitate' => 'required|min_length[1]|max_length[27]',
+		'judet' => 'required|min_length[1]|max_length[15]',
+		'strada' => 'required|min_length[1]|max_length[255]',
+		'bloc' => 'required|min_length[1]|max_length[10]',
+		'scara' => 'required|min_length[1]|max_length[10]',
+		'etaj' => 'required|less_than[10000]',
+		'apartament' => 'required|less_than[100000]',
+		'numar' => 'required|min_length[1]|max_length[10]',
+		'telefon' => 'required|exact_length[10]|numeric',
+		'email' => 'required|min_length[5]|max_length[255]|valid_email',
+		'profesie' => 'required|min_length[1]|max_length[255]',
+		'loc_de_munca' => 'required|min_length[1]|max_length[255]',
+		'istoric_medical' => 'required|min_length[1]|max_length[4000]',
+		'alergii' => 'required|min_length[1]|max_length[255]',
+	];
 	function __construct()     
 
 	{         
-
+		$this->session = Services::session();
+		$this->parser = Services::parser();
+		$this->userModel = model('UserModel');
+		$this->validator = Services::Validation();
 		//print_r($this->session->userdata("isLoggedIn")); exit;
-		if ($this->session->userdata("isLoggedIn")==false) redirect('login');
+		/*if ($this->session->userdata("isLoggedIn")==false) redirect('login');
 		
 		if ($this->session->userdata("tip_user")==1) redirect('pacient');
 		else if ($this->session->userdata("tip_user")==2) redirect('admin');
@@ -27,17 +53,43 @@ class Users extends BaseController {
 		
 		//$this->load->library("pdf");
 		
-		//$this->load->model("session");
+		//$this->load->model("session");*/
 
 	} 
 
 	
 
 	function index(){
+		if ($this->session->get('tip_user') !== 0 || $this->session->get('id') === null) {
+			return redirect('login');
+		}
 
 		$TITLE="Lista pacienti";
 		
-		$users=$this->users_model->get_all_users();
+		$HEADER = $this->parser->setData([
+			'SITE_URL' => base_url(),
+			'BASE_URL' => base_url()
+		])->render('template/header');
+
+		$users = $this->userModel->get_all_pacienti($this->session->get('id'));
+
+		$CONTENT = $this->parser->setData([
+			'USERS' => $users
+		])->render('users/users');
+
+		$data = array(
+			'HEADER' => $HEADER,
+
+			'TITLE' => $TITLE,
+
+			'message' => '',
+
+			'CONTENT' => $CONTENT
+		);
+
+		return htmlspecialchars_decode($this->parser->setData($data)->render("template/full-width"));
+
+		/*$users=$this->users_model->get_all_users();
 
 		$CONTENT=$this->parser->parse("users/users", array("USERS"=>$users), true);
 
@@ -49,35 +101,10 @@ class Users extends BaseController {
 
 					 );
 
-		$this->parser->parse("template/full-width",$data);			
+		$this->parser->parse("template/full-width",$data);*/
 
 	}
 
-	
-
-    function index1(){
-
-		$TITLE="Lista profesori";
-
-		$users=$this->users_model->get_all_users1();
-
-		
-
-		
-
-		$CONTENT=$this->parser->parse("users/users1", array("USERS"=>$users), true);
-
-		$data = array(
-
-				    	"TITLE"=>$TITLE,
-
-						"CONTENT"=>$CONTENT				
-
-					 );
-
-		$this->parser->parse("template/full-width",$data);			
-
-	}
 
 
 function view_profile($cnp){
@@ -108,34 +135,121 @@ function view_profile($cnp){
 
 	}
 	function adauga_pacient()	{	      
+        
+		if ($this->session->get('tip_user') !== 0 || $this->session->get('id') === null) {
+			return redirect('login');
+		}
 
-               
+		$TITLE = "Adaugă pacient";
 
-        //$courses=$this->db->get("lista_cursuri")->result();
+		$HEADER = $this->parser->setData([
+			'SITE_URL' => base_url(),
+			'BASE_URL' => base_url()
+		])->render('template/header');
 
-		$TITLE = "Adauga pacient nou";	
-
-        //print_r($TITLE); exit;
-
-		$CONTENT=$this->parser->parse('users/doc_form',array(),TRUE);		
-
-	
+		$CONTENT=$this->parser->setData([
+			'nume' => '',
+			'prenume' => '',
+			'varsta' => '',
+			'cnp' => '',
+			'localitate' => '',
+			'judet' => '',
+			'strada' => '',
+			'bloc' => '',
+			'scara' => '',
+			'etaj' => '',
+			'apartament' => '',
+			'numar' => '',
+			'telefon' => '',
+			'email' => '',
+			'profesie' => '',
+			'loc_de_munca' => '',
+			'istoric_medical' => '',
+			'alergii' => ''
+		])->render('users/pacient_form');		
 
 		$data = array(
 
-				    	"TITLE"=>$TITLE,
+			"TITLE"=>$TITLE,
 
-						"CONTENT"=>$CONTENT				
+			"HEADER" => $HEADER,
 
-					 );
+			"message" => '',
 
-		$this->parser->parse("template/full-width",$data);	
+			"CONTENT"=>$CONTENT				
 
-    	}
+		);
+
+		return htmlspecialchars_decode($this->parser->setData($data)->render("template/full-width"));
+
+}
 
 function add_done1(){
+	if ($this->session->get('tip_user') !== 0 || $this->session->get('id') === null) {
+		//throw new \Exception("Admin");
+		return redirect('login');
+	}
 
-          $post=$this->forms->get_fields_original(array("nume","prenume","localitate","telefon",
+	$input = $this->request->getPost();
+
+	if (!$this->validator->setRules(self::pacientValidationRules)
+	    ->run($input)) {
+
+			$TITLE = "Adaugă pacient";	
+
+			$HEADER = $this->parser->setData([
+				'SITE_URL' => base_url(),
+				'BASE_URL' => base_url()
+			])->render('template/header');
+	
+			$CONTENT=$this->parser->setData($input)
+				->render('users/pacient_form');		
+	
+			$data = array(
+	
+				"TITLE"=>$TITLE,
+	
+				"HEADER" => $HEADER,
+	
+				"message" => implode('<br/>', $this->validator->getErrors()),
+	
+				"CONTENT"=>$CONTENT				
+	
+			);
+	
+			return htmlspecialchars_decode($this->parser->setData($data)->render("template/full-width"));
+	}
+
+	if ($this->userModel->add_pacient($input, $this->session->get('id')) === null) {
+		
+		$TITLE = "Adaugă pacient";	
+
+		$HEADER = $this->parser->setData([
+			'SITE_URL' => base_url(),
+			'BASE_URL' => base_url()
+		])->render('template/header');
+
+		$CONTENT=$this->parser->setData($input)
+			->render('users/pacient_form');		
+
+		$data = array(
+
+			"TITLE"=>$TITLE,
+
+			"HEADER" => $HEADER,
+
+			"message" => "Un pacient având cnp: ".$input['cnp']." este prezent în baza de date!",
+
+			"CONTENT"=>$CONTENT				
+
+		);
+
+		return htmlspecialchars_decode($this->parser->setData($data)->render("template/full-width"));
+	}
+	
+	return redirect('medic');
+
+          /*$post=$this->forms->get_fields_original(array("nume","prenume","localitate","telefon",
 
           "cnp","judet","adresa","greutate","inaltime","alergii","istoric_medical"));
 		  $cnp_string=$post['cnp'];
@@ -174,7 +288,7 @@ function add_done1(){
 
 				$this->common->message_error("A fost o problema la adaugare. va rugam sa incercati mai tarziu!");
 
-                redirect("users");
+                redirect("users");*/
 
     }
 	

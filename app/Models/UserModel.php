@@ -25,7 +25,7 @@ Class UsersModel extends Model{
             'SMTPPort' => 465,
             'SMTPCrypto' => 'ssl',
             'SMTPUser' => 'danaurelianmircea@gmail.com',
-            'SMTPPass' => '',
+            'SMTPPass' => 'jiciuxjgeouhaopx',
             'mailType'  => 'html', 
             'charset'   => 'utf-8',
             'newline'  => "\r\n"
@@ -36,28 +36,73 @@ Class UsersModel extends Model{
         $Administrator = $this->Administrator->where([
             'email' => $email,
             'parola' => hash('sha256', $password)
-        ]);
+        ])->first();
         $Doctor = $this->Doctor->where([
             'email' => $email,
             'parola' => hash('sha256', $password)
-        ]);
+        ])->first();
         $Pacient = $this->Pacient->where([
             'email' => $email,
             'parola' => hash('sha256', $password)
-        ]);
-        if($Administrator->first() != null && $Doctor->first() == null && $Pacient->first() == null) {
+        ])->first();
+        if($Administrator !== null && $Doctor === null && $Pacient === null) {
+            $Administrator['tip_user'] = 2;
             return $Administrator;
-        } else if ($Administrator->first() == null && $Doctor->first() != null && $Pacient->first() == null) {
+        } else if ($Administrator === null && $Doctor !== null && $Pacient === null) {
+            $Doctor['tip_user'] = 0;
             return $Doctor;
-        } else if ($Administrator->first() == null && $Doctor->first() == null && $Pacient->first() != null) {
+        } else if ($Administrator === null && $Doctor === null && $Pacient !== null) {
+            $Pacient['tip_user'] = 1;
             return $Pacient;
         } else {
+            if ($Administrator === null) {
+                throw new \Exception('Administrator is null');
+            }
+            if ($Doctor === null) {
+                throw new \Exception('Doctor is null');
+            }
+            if ($Pacient === null) {
+                throw new \Exception(implode(',', $Administrator->first()));
+            }
             return null;
         }
     }
 
+    public function check_pacient_exists($cnp) {
+        return $this->Pacient->where([
+            'cnp' => $cnp
+        ])->first();
+    }
+
+    public function add_pacient($input, $id_medic) {
+        $input['id_doctor'] = $id_medic;
+        if ($this->check_pacient_exists($input['cnp'])) {
+            return null;
+        }
+        $password = random_string('alnum', 8);
+        $input['parola'] = hash('sha256', $password);
+        $this->Pacient->insert($input, false);
+        $this->email->setFrom('danaurelianmircea@gmail.com', 'WRBL');
+        $this->email->setTo($input['email']);
+        
+        $this->email->setSubject('Contul dvs. WRBL');
+        $this->email->setMessage("Pentru a vă putea autentifica pe platforma WRBL, accesați link-ul <a style=\"color: #4c8bf5\" href=\"http://162.0.238.94:80\">www.wrbl.health</a> și folosiți datele:<br><br>E-mail -> ".$input['email']."<br>Parola -> ".$password."<hr>");
+        
+        if (!$this->email->send()) {
+            throw new \Exception($this->email->printDebugger());
+        }
+
+        return $this->Doctor->getInsertID();
+    }
+
+    public function get_all_pacienti($id_medic) {
+        return $this->Pacient->where([
+            'id_doctor' => $id_medic
+        ])->findAll();
+    }
+
     public function get_all_medici() {
-        return $this->Doctor->findall();
+        return $this->Doctor->withDeleted()->findall();
     }
 
     public function get_pacient($cnp, $password) {
@@ -97,13 +142,13 @@ Class UsersModel extends Model{
         ])->set($data)->update();
     }
 
-    public function check_medic_exist($cnp) {
+    public function check_medic_exists($cnp) {
         return $this->Doctor->where([
             'cnp' => $cnp
         ])->first();
     }
     public function add_medic($input, $id_administrator) {
-        if ($this->check_medic_exist($input['cnp'])) {
+        if ($this->check_medic_exists($input['cnp'])) {
             return null;
         }
         $input['id_administrator'] = $id_administrator;

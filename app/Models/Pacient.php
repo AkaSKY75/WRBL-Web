@@ -7,7 +7,6 @@ use CodeIgniter\Model;
 class Pacient extends Model
 {
     protected $DBGroup          = 'default';
-    public $tip_user = 1;
     protected $table      = 'PACIENTI';
     protected $primaryKey = 'id';
 

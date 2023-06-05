@@ -7,7 +7,6 @@ use CodeIgniter\Model;
 class Administrator extends Model
 {
     protected $DBGroup          = 'default';
-    public $tip_user = 2;
     protected $table      = 'ADMINISTRATORI';
     protected $primaryKey = 'id';
 

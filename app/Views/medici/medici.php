@@ -39,6 +39,7 @@
           <td style="background:#eef1f8 color:black;">ADAUGAT LA</td>
           <td style="background:#eef1f8 color:black;">ULTIMA MODIFICARE</td>
           <td style="background:#eef1f8 color:black;">STERS LA</td>
+          <td style="background:#eef1f8 color:black;">ACȚIUNI</td>
         </tr>
       </thead>
       <tbody>
