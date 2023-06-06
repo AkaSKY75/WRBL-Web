@@ -11,7 +11,7 @@ class Admin extends BaseController {
 	protected const doctorValidationRules = [
 		'nume' => 'required|min_length[1]|max_length[255]',
 		'prenume' => 'required|min_length[1]|max_length[255]',
-		'cnp' => 'required|exact_length[13]|numeric',
+		'cnp' => 'required|exact_length[13]|numeric|valid_cnp',
 		'localitate' => 'required|min_length[1]|max_length[27]',
 		'judet' => 'required|min_length[1]|max_length[15]',
 		'strada' => 'required|min_length[1]|max_length[255]',

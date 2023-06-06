@@ -66,7 +66,7 @@ class Login extends BaseController {
 			return $this->parser->setData([
 				'BASE_URL' => base_url(),
 				'SITE_URL' => base_url(),
-				'message' => 'Email sau parola incorecte!',
+				'message' => 'Email sau parola incorecte! Vă puteți autentifica de asemenea și cu CNP-ul alături de parolă',
 			])->render('login/login');
 			//redirect('login');
 		}

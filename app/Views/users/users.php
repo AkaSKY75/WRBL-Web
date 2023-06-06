@@ -33,10 +33,10 @@
           <td  onclick="sortTable(0)"style="background:#eef1f8 color:black">NUME</td>
 
           <td  onclick="sortTable(0)"style="background:#eef1f8 color:black">PRENUME</td>
-
-          <td  onclick="sortTable(0)"style="background:#eef1f8 color:black">VÂRSTA</td>
-          
+         
           <td style="background:#eef1f8 color:black;">CNP</td>
+
+          <td style="background:#eef1f8 color:black;">VÂRSTA</td>
 
           <td style="background:#eef1f8 color:black;">LOCALITATE</td>	
           
@@ -90,6 +90,8 @@
                               
             <td style="background:#eef1f8 color:black;">{cnp}</td>
 
+            <td style="background:#eef1f8 color:black;">{varsta}</td>
+
             <td style="background:#eef1f8 color:black;">{localitate}</td>
                               
             <td style="background:#eef1f8 color:black;">{judet}</td>
@@ -126,13 +128,13 @@
             
             <td style="background:#074486; color:white;" >
 
-              <a style="color:white" class="link" href="{SITE_URL}/users/view_profile/{id}">Vezi fisa pacientului</a>&nbsp;&nbsp;&nbsp;	
+              <a style="color:white" class="link" href="{SITE_URL}/medic/view_profile/{id}">Vezi fisa pacientului</a>&nbsp;&nbsp;&nbsp;	
               
-              <a style="color:white" class="link" href="{SITE_URL}/users/view_consultatii_pacient/{id}">Vezi consultații</a>&nbsp;&nbsp;&nbsp;
+              <a style="color:white" class="link" href="{SITE_URL}/medic/view_consultatii_pacient/{id}">Vezi consultații</a>&nbsp;&nbsp;&nbsp;
               
-              <a  style="color:white" class="link" href="{SITE_URL}/users/edit_pacient/{id}">Editează</a>&nbsp;&nbsp;&nbsp;
+              <a  style="color:white" class="link" href="{SITE_URL}/medic/edit_pacient/{id}">Editează</a>&nbsp;&nbsp;&nbsp;
 
-              <a  style="color:white" class="link" href="{SITE_URL}/users/delete_pacient/{id}">Șterge</a>&nbsp;&nbsp;&nbsp;
+              <a  style="color:white" class="link" href="{SITE_URL}/medic/delete_pacient/{id}">Șterge</a>&nbsp;&nbsp;&nbsp;
 
                             <!--<a  style="color:white" class="link" href="{SITE_URL}/users/delete/{CNP}" onclick='return confirm("Doriti stergerea cursantului {prenume} {nume}?")'>Sterge</a>	
                             -->

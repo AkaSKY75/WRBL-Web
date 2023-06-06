@@ -464,27 +464,42 @@ function view_consultatii_pacient($cnp){
 
 	}
 
-	function edit_pacient($cnp){		
-	
+	function edit_pacient($cnp = null){		
+		if ($this->session->get('tip_user') !== 0 || $this->session->get('id') === null || $cnp === null) {
+			return redirect('');
+		}
 
 		$TITLE = "Editare date pacient";
 
-		$user=$this->users_model->get_pacient($cnp); //luare date din baza de date dupa id-ul clientului, pentru a le incarca in view
+		$HEADER = $this->parser->setData([
+			'SITE_URL' => base_url(),
+			'BASE_URL' => base_url()
+		])->render('template/header');
 
+		$user= $this->userModel->get_pacient($cnp); //luare date din baza de date dupa id-ul clientului, pentru a le incarca in view
 
-		$CONTENT=$this->parser->parse('users/edit_pacient',$user,TRUE);	//incarca view-ul cu datele din baza de date	
+		if ($user === null) {
+			return redirect('');
+		}
+
+		$CONTENT=$this->parser->setData($user)
+			->render('users/edit_pacient');	//incarca view-ul cu datele din baza de date	
 		
 
 		$data = array(
 
-				    	"TITLE"=>$TITLE,
+				    	"TITLE" => $TITLE,
 
-						"CONTENT"=>$CONTENT				
+						"HEADER" => $HEADER,
+
+						"message" => "",
+
+						"CONTENT" => $CONTENT				
 
 					 );
 
 		
-		$this->parser->parse("template/full-width",$data);
+		return htmlspecialchars_decode($this->parser->setData($data)->render("template/full-width"));
 
 	}
 	

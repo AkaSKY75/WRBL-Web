@@ -25,7 +25,7 @@ Class UsersModel extends Model{
             'SMTPPort' => 465,
             'SMTPCrypto' => 'ssl',
             'SMTPUser' => 'danaurelianmircea@gmail.com',
-            'SMTPPass' => 'jiciuxjgeouhaopx',
+            'SMTPPass' => '',
             'mailType'  => 'html', 
             'charset'   => 'utf-8',
             'newline'  => "\r\n"
@@ -33,16 +33,22 @@ Class UsersModel extends Model{
         $this->email = Services::email()->initialize($email_config);
     }
     public function try_login($email, $password) {
-        $Administrator = $this->Administrator->where([
+        $Administrator = $this->Administrator->orWhere([
             'email' => $email,
+            'cnp' => $email,
+        ])->where([
             'parola' => hash('sha256', $password)
         ])->first();
-        $Doctor = $this->Doctor->where([
+        $Doctor = $this->Doctor->orWhere([
             'email' => $email,
+            'cnp' => $email,
+        ])->where([
             'parola' => hash('sha256', $password)
         ])->first();
         $Pacient = $this->Pacient->where([
             'email' => $email,
+            'cnp' => $email,
+        ])->where([
             'parola' => hash('sha256', $password)
         ])->first();
         if($Administrator !== null && $Doctor === null && $Pacient === null) {
@@ -55,15 +61,6 @@ Class UsersModel extends Model{
             $Pacient['tip_user'] = 1;
             return $Pacient;
         } else {
-            if ($Administrator === null) {
-                throw new \Exception('Administrator is null');
-            }
-            if ($Doctor === null) {
-                throw new \Exception('Doctor is null');
-            }
-            if ($Pacient === null) {
-                throw new \Exception(implode(',', $Administrator->first()));
-            }
             return null;
         }
     }
@@ -105,10 +102,15 @@ Class UsersModel extends Model{
         return $this->Doctor->withDeleted()->findall();
     }
 
-    public function get_pacient($cnp, $password) {
+    public function get_pacient($cnp, $password = null) {
+        if ($password !== null) {
+            return $this->Pacient->where([
+                'cnp' => $cnp,
+                'parola' => $password
+            ])->first();
+        }
         return $this->Pacient->where([
-            'cnp' => $cnp,
-            'parola' => $password
+            'id' => $cnp,
         ])->first();
     }
 
