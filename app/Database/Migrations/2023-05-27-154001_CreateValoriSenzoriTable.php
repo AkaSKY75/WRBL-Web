@@ -3,6 +3,7 @@
 namespace App\Database\Migrations;
 
 use CodeIgniter\Database\Migration;
+use CodeIgniter\Database\RawSql;
 
 class CreateValoriSenzoriTable extends Migration
 {
@@ -49,15 +50,15 @@ class CreateValoriSenzoriTable extends Migration
                 'constraint' => '4,2'
             ],
             'created_at' => [
-                'type' => 'DATE',
-                'default' => date('d-M-y')
+                'type' => 'TIMESTAMP',
+                'default' => new RawSql('CURRENT_TIMESTAMP')
             ],
             'updated_at' => [
-                'type' => 'DATE',
-                'default' => date('d-M-y')
+                'type' => 'TIMESTAMP',
+                'default' => new RawSql('CURRENT_TIMESTAMP')
             ],
             'deleted_at' => [
-                'type' => 'DATE',
+                'type' => 'TIMESTAMP',
                 'default' => '',
                 'null' => true
             ]

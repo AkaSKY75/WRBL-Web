@@ -23,7 +23,7 @@
         
         <div class="form-horizontal"></br></br></br></br>
     
-          <form class="form-horizontal" role="form" method="post" action="{SITE_URL}/medic/edit_done/{cnp}/" enctype="multipart/form-data">
+          <form class="form-horizontal" role="form" method="post" action="{SITE_URL}/medic/edit_done/{id}/" enctype="multipart/form-data">
 
             <input type="hidden" name="source" value="{source}" />
 

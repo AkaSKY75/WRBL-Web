@@ -133,6 +133,9 @@ class CNPRules
         }
 
         if ($cifra_control % 11 != $cnp[12]) {
+            if ($cifra_control % 11 === 10 && $cnp[12] === '1') {
+                return true;
+            }
             $error = 'Cifra de control din CNP este invalidă!';
             return false;
         }

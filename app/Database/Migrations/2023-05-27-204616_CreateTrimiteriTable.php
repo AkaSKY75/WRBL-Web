@@ -3,6 +3,7 @@
 namespace App\Database\Migrations;
 
 use CodeIgniter\Database\Migration;
+use CodeIgniter\Database\RawSql;
 
 class CreateTrimiteriTable extends Migration
 {
@@ -191,15 +192,15 @@ class CreateTrimiteriTable extends Migration
                 'null' => true
             ],
             'created_at' => [
-                'type' => 'DATE',
-                'default' => date('d-M-y')
+                'type' => 'TIMESTAMP',
+                'default' => new RawSql('CURRENT_TIMESTAMP')
             ],
             'updated_at' => [
-                'type' => 'DATE',
-                'default' => date('d-M-y')
+                'type' => 'TIMESTAMP',
+                'default' => new RawSql('CURRENT_TIMESTAMP')
             ],
             'deleted_at' => [
-                'type' => 'DATE',
+                'type' => 'TIMESTAMP',
                 'default' => '',
                 'null' => true
             ]

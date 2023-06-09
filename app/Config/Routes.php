@@ -40,6 +40,8 @@ $routes->get('/admin/delete_medic/(:num)', 'Admin::delete_medic/$1');
 $routes->get('/medic', 'Users::index');
 $routes->get('/medic/adauga_pacient', 'Users::adauga_pacient');
 $routes->get('/medic/edit_pacient/(:num)', 'Users::edit_pacient/$1');
+$routes->get('/medic/view_profile/(:num)', 'Users::view_profile/$1');
+$routes->post('/medic/edit_done/(:num)', 'Users::edit_done/$1');
 $routes->post('/medic/add_done1', 'Users::add_done1');
 $routes->post('/admin/delete_done', 'Admin::delete_done');
 $routes->post('/admin/edit_done/(:num)', 'Admin::edit_done/$1');

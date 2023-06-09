@@ -445,11 +445,11 @@ class Model extends BaseModel
             $builder->where($this->deletedField);
 
             //$set[$this->deletedField] = $this->setDate();
-            $set[$this->deletedField] = date('d-M-y');
+            $set[$this->deletedField] = date('d-M-y H:i:s A');
 
             if ($this->useTimestamps && $this->updatedField) {
                 //$set[$this->updatedField] = $this->setDate();
-                $set[$this->updatedField] = date('d-M-y');
+                $set[$this->updatedField] = date('d-M-y H:i:s');
             }
 
             return $builder->update($set);

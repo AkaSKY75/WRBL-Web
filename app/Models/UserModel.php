@@ -65,6 +65,11 @@ Class UsersModel extends Model{
         }
     }
 
+    public function update_pacient($id_pacient, $data) {
+        return $this->Pacient->where([
+            'id' => $id_pacient
+        ])->set($data)->update();
+    }
     public function check_pacient_exists($cnp) {
         return $this->Pacient->where([
             'cnp' => $cnp
@@ -102,15 +107,15 @@ Class UsersModel extends Model{
         return $this->Doctor->withDeleted()->findall();
     }
 
-    public function get_pacient($cnp, $password = null) {
+    public function get_pacient($id_pacient_cnp, $password = null) {
         if ($password !== null) {
             return $this->Pacient->where([
-                'cnp' => $cnp,
+                'cnp' => $id_pacient_cnp,
                 'parola' => $password
             ])->first();
         }
         return $this->Pacient->where([
-            'id' => $cnp,
+            'id' => $id_pacient_cnp,
         ])->first();
     }
 

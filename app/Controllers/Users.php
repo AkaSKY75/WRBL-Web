@@ -107,31 +107,41 @@ class Users extends BaseController {
 
 
 
-function view_profile($cnp){
+function view_profile($id_pacient){
 
 		$TITLE = "Profil pacient";
 
-		$user=$this->users_model->get_pacient($cnp);
+		$HEADER = $this->parser->setData([
+			'SITE_URL' => base_url(),
+			'BASE_URL' => base_url()
+		])->render('template/header');
+
+		//$user=$this->users_model->get_pacient($cnp);
+
+		$user = $this->userModel->get_pacient($id_pacient);
 
 		//print_r($user);
 
-		$DIAGNOSTIC=$this->users_model->get_diagnostice_by_pacient($cnp);
-		$user->DIAGNOSTIC=$DIAGNOSTIC;
-		$CONTENT=$this->parser->parse('users/profile_doc',$user,TRUE);	
+		//$DIAGNOSTIC=$this->users_model->get_diagnostice_by_pacient($cnp);
+		//$user->DIAGNOSTIC=$DIAGNOSTIC;
 
-
+		$CONTENT = $this->parser->setData($user)->render('users/profile_pacient');	
 
 		$data = array(
 
-				    	"TITLE"=>$TITLE,
+				    	"TITLE" => $TITLE,
 
-						"CONTENT"=>$CONTENT				
+						"HEADER" => $HEADER,
+
+						"message" => "",
+
+						"CONTENT" => $CONTENT				
 
 					 );
 
 		
-
-		$this->parser->parse("template/full-width",$data);	
+		
+		return htmlspecialchars_decode($this->parser->setData($data)->render("template/full-width"));
 
 	}
 	function adauga_pacient()	{	      
@@ -464,8 +474,8 @@ function view_consultatii_pacient($cnp){
 
 	}
 
-	function edit_pacient($cnp = null){		
-		if ($this->session->get('tip_user') !== 0 || $this->session->get('id') === null || $cnp === null) {
+	function edit_pacient($id_pacient = null){		
+		if ($this->session->get('tip_user') !== 0 || $this->session->get('id') === null || $id_pacient === null) {
 			return redirect('');
 		}
 
@@ -476,7 +486,7 @@ function view_consultatii_pacient($cnp){
 			'BASE_URL' => base_url()
 		])->render('template/header');
 
-		$user= $this->userModel->get_pacient($cnp); //luare date din baza de date dupa id-ul clientului, pentru a le incarca in view
+		$user= $this->userModel->get_pacient($id_pacient); //luare date din baza de date dupa id-ul clientului, pentru a le incarca in view
 
 		if ($user === null) {
 			return redirect('');
@@ -503,10 +513,70 @@ function view_consultatii_pacient($cnp){
 
 	}
 	
-	function edit_done($cnp){		
-	
+	function edit_done($id_pacient = null){	
+		if ($this->session->get('tip_user') !== 0 || $this->session->get('id') === null || $id_pacient === null) {
+			return redirect('');
+		}
 
-		$post=$this->forms->get_fields_original(array("nume","prenume","localitate","telefon",
+		$input = $this->request->getPost();
+
+		if (!$this->validator->setRules(self::pacientValidationRules)
+			->run($input)) {
+
+				$TITLE = "Editare date pacient";	
+
+				$HEADER = $this->parser->setData([
+					'SITE_URL' => base_url(),
+					'BASE_URL' => base_url()
+				])->render('template/header');
+		
+				$CONTENT=$this->parser->setData($input)
+					->render('users/pacient_form');		
+		
+				$data = array(
+		
+					"TITLE"=>$TITLE,
+		
+					"HEADER" => $HEADER,
+		
+					"message" => implode('<br/>', $this->validator->getErrors()),
+		
+					"CONTENT"=>$CONTENT				
+		
+				);
+		
+				return htmlspecialchars_decode($this->parser->setData($data)->render("template/full-width"));
+		}
+
+		if (!$this->userModel->update_pacient($id_pacient, $input)) {
+			$TITLE = "Editare date pacient";	
+
+			$HEADER = $this->parser->setData([
+				'SITE_URL' => base_url(),
+				'BASE_URL' => base_url()
+			])->render('template/header');
+	
+			$CONTENT=$this->parser->setData($input)
+				->render('users/pacient_form');		
+	
+			$data = array(
+	
+				"TITLE"=>$TITLE,
+	
+				"HEADER" => $HEADER,
+	
+				"message" => 'A apărut o eroare! Vă rugăm încercați din nou!',
+	
+				"CONTENT"=>$CONTENT				
+	
+			);
+	
+			return htmlspecialchars_decode($this->parser->setData($data)->render("template/full-width"));
+		}
+
+		return redirect()->to(base_url().'medic/view_profile/'.$id_pacient);
+
+		/*$post=$this->forms->get_fields_original(array("nume","prenume","localitate","telefon",
 
           "cnp","judet","adresa","greutate","inaltime","alergii","istoric_medical"));
 		  $cnp_string=$post['cnp'];
@@ -544,9 +614,9 @@ function view_consultatii_pacient($cnp){
 
 			else
 
-				$this->common->message_error("A fost o problema la editare. Va rugam sa incercati mai tarziu!");*/
+				$this->common->message_error("A fost o problema la editare. Va rugam sa incercati mai tarziu!");
 
-                redirect("users");
+                redirect("users");*/
 	}
 	
 	function view_consult($id_consult){
