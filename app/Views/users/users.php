@@ -131,6 +131,12 @@
               <a style="color:white" class="link" href="{SITE_URL}/medic/view_profile/{id}">Vezi fisa pacientului</a>&nbsp;&nbsp;&nbsp;	
               
               <a style="color:white" class="link" href="{SITE_URL}/medic/view_consultatii_pacient/{id}">Vezi consultații</a>&nbsp;&nbsp;&nbsp;
+
+              <a style="color:white" class="link" href="{SITE_URL}/medic/view_alerte_pacient/{id}">Vezi alerte</a>&nbsp;&nbsp;&nbsp;
+
+              <a style="color:white" class="link" href="{SITE_URL}/medic/view_recomandari_pacient/{id}">Vezi recomandări</a>&nbsp;&nbsp;&nbsp;
+
+              <a style="color:white" class="link" href="{SITE_URL}/medic/view_valori_senzori_pacient/{id}">Vezi valori senzori</a>&nbsp;&nbsp;&nbsp;
               
               <a  style="color:white" class="link" href="{SITE_URL}/medic/edit_pacient/{id}">Editează</a>&nbsp;&nbsp;&nbsp;
 

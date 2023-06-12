@@ -126,11 +126,103 @@ class API extends BaseController
                     'message' => 'CNP sau parola incorecte!'
                   ]);
       }
+
+      $example = [
+        "PACIENTI" => [
+          "20230610T162731Z" => [
+            "id_doctor" => "0",
+            "nume" => "Ionescu",
+            "prenume" => "Georgescu",
+            "varsta" => "30",
+            "cnp" => "1700928416180",
+            "localitate" => "Timișoara",
+            "judet" => "Timis",
+            "strada" => "Alexandru Vaida-Voievod",
+            "bloc" => "Camin 9C",
+            "scara" => "-",
+            "etaj" => "2",
+            "apartament" => "219",
+            "numar" => "-",
+            "telefon" => "0734937891",
+            "email" => "ionescu.georgescu@yahoo.com",
+            "profesie" => "programator",
+            "loc_de_munca" => "Continental",
+            "istoric_medicla" => "Operație de apendicită realizată în anul 2016",
+            "alergii" => "Ibuprofen"
+          ]
+        ],
+        "RECOMANDARI" => [
+          "20230610T161754Z" => [
+            "id_doctor" => "0",
+            "tip" => "bicicleta",
+            "durata" => "30",
+            "alte_indicatii" => "-",
+            "state" => "0"
+          ],
+          "20230609T123410Z" => [
+            "id_doctor" => "0",
+            "tip" => "înot",
+            "durata" => "120",
+            "alte_indicatii" => "-",
+            "state" => "1"
+          ]
+        ],
+        "ALERTE" => [
+          "20230610T163120Z" => [
+            "id_doctor" => "0",
+            "durata_ecg_P_min" => "0.01",
+            "durata_ecg_P_max" => "0.08",
+            "durata_ecg_PR_min" => "0.12",
+            "durata_ecg_PR_max" => "0.20",
+            "amplitudine_ecg_QRS_poz_min" => "0.5",
+            "amplitudine_ecg_QRS_poz_max" => "2.5",
+            "amplitudine_ecg_QRS_neg_min" => "1.0",
+            "amplitudine_ecg_QRS_neg_max" => "3.0",
+            "durata_ecg_QRS_min" => "0.01",
+            "durata_ecg_QRS_max" => "0.12",
+            "durata_ecg_ST_min" => "0.01",
+            "durata_ecg_ST_max" => "0.08",
+            "amplitudine_ecg_T_min" => "0.1",
+            "amplitudine_ecg_T_max" => "0.2",
+            "durata_ecg_T_min" => "0.16",
+            "durata_ecg_T_max" => "0.16",
+            "val_min_puls" => "60",
+            "val_max_puls" => "100",
+            "val_min_umiditate" => "35",
+            "val_max_umiditate" => "50",
+            "val_min_temperatura" => "37.0",
+            "val_max_temperatura" => "37.8"
+          ]
+        ],
+        "VALORI_SENZORI" => [
+          "20230611T151151Z" => [
+            "is_alert" => "0",
+            "val_senzor_ecg" => "(16000 valori)",
+            "val_senzor_puls" => "80",
+            "val_senzor_umiditate" => "40",
+            "val_senzor_temperatura" => "37.2",
+            "accelerometru_x" => "-9.81",
+            "accelerometru_y" => "0",
+            "accelerometru_z" => "0"
+          ],
+          "20230611T145134Z" => [
+            "is_alert" => "14",
+            "val_senzor_ecg" => "(16000 valori)",
+            "val_senzor_puls" => "102",
+            "val_senzor_umiditate" => "51",
+            "val_senzor_temperatura" => "37.9",
+            "accelerometru_x" => "-9.81",
+            "accelerometru_y" => "0",
+            "accelerometru_z" => "0"
+          ]
+        ]
+      ];
+
       return $this->response
                 ->setStatusCode(ResponseInterface::HTTP_OK)
                 ->setJSON([
                   'status' => 'success',
-                  'data' => [],
+                  'data' => json_encode($example),
                   'message' => ''
                 ]);
     }
@@ -212,8 +304,8 @@ class API extends BaseController
               'email' => 'test0@test0.com'
             ];
             $Administratori = model('Administrator', false);
+            $Administratori->insert($data);
             $admin = $Administratori->findall();
-            //$Administratori->insert($data);
             return $this->response
                         ->setStatusCode(ResponseInterface::HTTP_OK)
                         /*->setJSON([

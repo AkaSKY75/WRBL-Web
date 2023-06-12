@@ -18,6 +18,7 @@ Class UsersModel extends Model{
         $this->Alerte = model('Alerte');
         $this->Recomandari = model('Recomandari');
         $this->Valori_Senzori = model('Valori_Senzori');
+        $this->Consultatii = model('Consultatii');
         helper('text');
         $email_config = [
             'protocol' => 'smtp',
@@ -45,7 +46,7 @@ Class UsersModel extends Model{
         ])->where([
             'parola' => hash('sha256', $password)
         ])->first();
-        $Pacient = $this->Pacient->where([
+        $Pacient = $this->Pacient->orWhere([
             'email' => $email,
             'cnp' => $email,
         ])->where([
@@ -105,6 +106,41 @@ Class UsersModel extends Model{
 
     public function get_all_medici() {
         return $this->Doctor->withDeleted()->findall();
+    }
+
+    public function add_consultatie($id_pacient, $id_doctor, $input) {
+        $input['id_pacient'] = $id_pacient;
+        $input['id_doctor'] = $id_doctor;
+        $this->Consultatii->insert($input);
+        return $this->Consultatii->getInsertID();
+    }
+
+    public function add_alerta($id_pacient, $id_doctor, $input) {
+        $input['id_pacient'] = $id_pacient;
+        $input['id_doctor'] = $id_doctor;
+        $this->Alerte->insert($input);
+        
+        return $this->Alerte->getInsertID();
+    }
+
+    public function get_all_alerte_for_pacient($id_pacient, $id_doctor) {
+        return $this->Alerte->where([
+            'id_pacient' => $id_pacient,
+            'id_doctor' => $id_doctor
+        ])->findAll();
+    }
+
+    public function get_consultatie($id_consultatie) {
+        return $this->Consultatii->where([
+            'id' => $id_consultatie,
+        ])->first();
+    }
+
+    public function get_all_consultatii_for_pacient($id_pacient, $id_doctor) {
+        return $this->Consultatii->where([
+            'id_pacient' => $id_pacient,
+            'id_doctor' => $id_doctor
+        ])->findAll();
     }
 
     public function get_pacient($id_pacient_cnp, $password = null) {

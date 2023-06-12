@@ -9,7 +9,7 @@
 			
       <div class="col-md-2"></div>
     
-      <div class="col-md-6" style="margin-left:7%"><h1 >{nume} {prenume}</h1><a style="color:white; " href="{SITE_URL}/users/view_profile/{cnp}"><button type="submit" style="background: #074486; " class="btn btn-orange submit em">Vezi fisa pacientului</button></a><a style="color:white; padding-left:1%" href="{SITE_URL}/users/view_consultatii_pacient/{cnp}"><button type="submit" style="background: #074486; " class="btn btn-orange submit em">Vezi consultatii</button></a></div>
+      <div class="col-md-6" style="margin-left:7%"><h1 >{nume} {prenume}</h1><a style="color:white; " href="{SITE_URL}/medic/view_profile/{id}"><button type="submit" style="background: #074486; " class="btn btn-orange submit em">Vezi fisa pacientului</button></a><a style="color:white; padding-left:1%" href="{SITE_URL}/medic/view_consultatii_pacient/{id}"><button type="submit" style="background: #074486; " class="btn btn-orange submit em">Vezi consultatii</button></a></div>
 		
       <div class="col-md-6"></div>
 		

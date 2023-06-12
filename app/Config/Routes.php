@@ -41,6 +41,14 @@ $routes->get('/medic', 'Users::index');
 $routes->get('/medic/adauga_pacient', 'Users::adauga_pacient');
 $routes->get('/medic/edit_pacient/(:num)', 'Users::edit_pacient/$1');
 $routes->get('/medic/view_profile/(:num)', 'Users::view_profile/$1');
+$routes->get('/medic/view_consultatii_pacient/(:num)', 'Users::view_consultatii_pacient/$1');
+$routes->get('/medic/adauga_consultatie/(:num)', 'Users::adauga_consultatie/$1');
+$routes->get('/medic/view_consultatie/(:num)', 'Users::view_consultatie/$1');
+$routes->get('/medic/view_medic', 'Users::view_medic');
+$routes->get('/medic/adauga_alerta/(:num)', 'Users::adauga_alerta/$1');
+$routes->get('/medic/view_alerte_pacient/(:num)', 'Users::view_alerte_pacient/$1');
+$routes->post('/medic/adauga_alerta_done/(:num)', 'Users::adauga_alerta_done/$1');
+$routes->post('/medic/adauga_consultatie_done/(:num)', 'Users::adauga_consultatie_done/$1');
 $routes->post('/medic/edit_done/(:num)', 'Users::edit_done/$1');
 $routes->post('/medic/add_done1', 'Users::add_done1');
 $routes->post('/admin/delete_done', 'Admin::delete_done');
@@ -49,7 +57,7 @@ $routes->post('/admin/add_done1', 'Admin::add_done1');
 $routes->post('/login/done', 'Login::done');
 $routes->post('/api/smartphone/login', 'API::SmartphoneLogin');
 $routes->post('/api/smartphone/sensors', 'API::SmartphoneSensors');
-$routes->post('/api/hl7/fhir', 'API::GetDataFromHL7FHIR');
+$routes->get('/api/hl7/fhir', 'API::GetDataFromHL7FHIR'); // this should be post
 
 /*
  * --------------------------------------------------------------------

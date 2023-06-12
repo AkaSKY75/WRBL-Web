@@ -7,7 +7,7 @@ use CodeIgniter\Model;
 class Consultatii extends Model
 {
     protected $DBGroup          = 'default';
-    protected $table            = 'consultatiis';
+    protected $table            = 'CONSULTATII';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';

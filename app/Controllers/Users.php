@@ -27,6 +27,41 @@ class Users extends BaseController {
 		'istoric_medical' => 'required|min_length[1]|max_length[4000]',
 		'alergii' => 'required|min_length[1]|max_length[255]',
 	];
+
+	protected const consultatieValidationRules = [
+		'motivul_prezentarii' => 'required|min_length[1]|max_length[255]',
+		'simptome' => 'required|min_length[1]|max_length[255]',
+		'diagnostic_icd_10' => 'required|min_length[1]|max_length[255]',
+		'tratament' => 'required|min_length[1]|max_length[255]',
+		'observatii' => 'min_length[1]|max_length[255]'
+	];
+
+	protected const alertaValidationRules = [
+		'durata_ecg_P_min' => 'required|decimal|less_than[10]',
+		'durata_ecg_P_max' => 'required|decimal|less_than[10]',
+		'durata_ecg_PR_min' => 'required|decimal|less_than[10]',
+		'durata_ecg_PR_max' => 'required|decimal|less_than[10]',
+		'amplitudine_ecg_QRS_poz_min' => 'required|decimal|less_than[100]',
+		'amplitudine_ecg_QRS_poz_max' => 'required|decimal|less_than[100]',
+		'amplitudine_ecg_QRS_neg_min' => 'required|decimal|less_than[100]',
+		'amplitudine_ecg_QRS_neg_max' => 'required|decimal|less_than[100]',
+		'durata_ecg_QRS_min' => 'required|decimal|less_than[10]',
+		'durata_ecg_QRS_max' => 'required|decimal|less_than[10]',
+		'durata_ecg_ST_min' => 'required|decimal|less_than[10]',
+		'durata_ecg_ST_max' => 'required|decimal|less_than[10]',
+		'amplitudine_ecg_T_min' => 'required|decimal|less_than[100]',
+		'amplitudine_ecg_T_max' => 'required|decimal|less_than[100]',
+		'durata_ecg_T_min' => 'required|decimal|less_than[10]',
+		'durata_ecg_T_max' => 'required|decimal|less_than[10]',
+		'val_min_puls' => 'required|less_than[1000]',
+		'val_max_puls' => 'required|less_than[1000]',
+		'val_min_umiditate' => 'required|decimal|less_than[100]',
+		'val_max_umiditate' => 'required|decimal|less_than[100]',
+		'val_min_temperatura' => 'required|decimal|less_than[100]',
+		'val_max_temperatura' => 'required|decimal|less_than[100]',
+		'mesaj_alerta' => 'required|min_length[1]|max_length[255]'
+	];
+
 	function __construct()     
 
 	{         
@@ -196,7 +231,6 @@ function view_profile($id_pacient){
 
 function add_done1(){
 	if ($this->session->get('tip_user') !== 0 || $this->session->get('id') === null) {
-		//throw new \Exception("Admin");
 		return redirect('login');
 	}
 
@@ -302,30 +336,118 @@ function add_done1(){
 
     }
 	
-	function adauga_consult($cnp)	{	      
+	function adauga_consultatie($id_pacient = null)	{	      
+		if ($this->session->get('tip_user') !== 0 || $this->session->get('id') === null || $id_pacient === null) {
+			return redirect('login');
+		}
+		$TITLE = "Adauga consult";
 
-		$TITLE = "Adauga consult";	
-		$user=$this->users_model->get_pacient($cnp);
-		$diagnostic=$this->users_model->get_all_diagnostice();
-		$user->DIAGNOSTIC=$diagnostic;
-		$CONTENT=$this->parser->parse('users/adauga_consult',$user,TRUE);		
+		$HEADER = $this->parser->setData([
+			'SITE_URL' => base_url(),
+			'BASE_URL' => base_url()
+		])->render('template/header');
+
+		$user = $this->userModel->get_pacient($id_pacient);
+
+		if ($user === null) {
+			return redirect('/');
+		}
+		//$diagnostic=$this->users_model->get_all_diagnostice();
+		//$user->DIAGNOSTIC=$diagnostic;
+		
+		$CONTENT=$this->parser->setData(array_merge($user, [
+			'motivul_prezentarii' => '',
+			'simptome' => '',
+			'diagnostic_icd_10' => '',
+			'tratament' => '',
+			'observatii' => '',
+			'semnatura' => ''
+		]))->render('users/adauga_consult');
+		
 		$data = array(
 
-				    	"TITLE"=>$TITLE,
+				    	"TITLE" => $TITLE,
 
-						"CONTENT"=>$CONTENT				
+						"HEADER" => $HEADER,
+
+						"message" => "",
+
+						"CONTENT" => $CONTENT				
 
 					 );
 
-		$this->parser->parse("template/full-width",$data);	
+		return htmlspecialchars_decode($this->parser->setData($data)->render("template/full-width"));
 
-    	}
+    }
 		
 		
 		
-		function adauga_consult_done($cnp)	{	      
+	function adauga_consultatie_done($id_pacient = null) {	      
+		if ($this->session->get('tip_user') !== 0 || $this->session->get('id') === null || $id_pacient === null) {
+			return redirect('login');
+		}
+          
+		$input = $this->request->getPost();
 
-          $post=$this->forms->get_fields_original(array("cod_diagnostic","detalii","tratament"));
+		if(!$this->validator->setRules(self::consultatieValidationRules)
+		->run($input)) {
+
+			$user = $this->userModel->get_pacient($id_pacient);
+
+			$TITLE = "Adauga consult";
+
+			$HEADER = $this->parser->setData([
+				'SITE_URL' => base_url(),
+				'BASE_URL' => base_url()
+			])->render('template/header');
+
+			$CONTENT=$this->parser->setData(array_merge($user, $input))
+			->render('users/adauga_consult');
+
+			$data = array(
+
+				"TITLE" => $TITLE,
+
+				"HEADER" => $HEADER,
+
+				"message" => implode('</br>', $this->validator->getErrors()),
+
+				"CONTENT" => $CONTENT				
+
+			 );
+
+			return htmlspecialchars_decode($this->parser->setData($data)->render("template/full-width"));
+
+		}
+
+		if($this->userModel->add_consultatie($id_pacient, $this->session->get('id'), $input) === null) {
+			$user = $this->userModel->get_pacient($id_pacient);
+			
+			$TITLE = "Adauga consult";
+
+			$HEADER = $this->parser->setData([
+				'SITE_URL' => base_url(),
+				'BASE_URL' => base_url()
+			])->render('template/header');
+
+			$CONTENT=$this->parser->setData(array_merge($user, $input))
+			->render('users/adauga_consult');
+
+			$data = array(
+
+				"TITLE" => $TITLE,
+
+				"HEADER" => $HEADER,
+
+				"message" => 'A aparut o eroare. Vă rugăm încercați din nou!',
+
+				"CONTENT" => $CONTENT				
+
+			 );
+		}
+
+		return redirect()->to(base_url()."/medic/view_profile/".$id_pacient);
+		/*$post=$this->forms->get_fields_original(array("cod_diagnostic","detalii","tratament"));
 		
 		$post['id_pacient']=$cnp;
 		$post['data_consult']=date("Y-m-d");
@@ -350,7 +472,7 @@ function add_done1(){
 
                
 
-                redirect("users/view_profile/".$cnp);	
+                redirect("users/view_profile/".$cnp);*/
 
     	}
 		
@@ -410,24 +532,46 @@ function add_done1(){
 
     	}
 
-function view_consultatii_pacient($cnp){
-	$user=$this->users_model->get_pacient($cnp);
+	function view_consultatii_pacient($id_pacient = null) {
+		if ($this->session->get('tip_user') !== 0 || $this->session->get('id') === null || $id_pacient === null) {
+			return redirect('login');
+		}
+
+		$user = $this->userModel->get_pacient($id_pacient);
+
+		if ($user === null) {
+			return redirect('/');
+		}
 
 		$TITLE="Consultatii pacient";
+	
+		$HEADER = $this->parser->setData([
+			'SITE_URL' => base_url(),
+			'BASE_URL' => base_url()
+		])->render('template/header');
+
+		$consultatii = $this->userModel->get_all_consultatii_for_pacient($id_pacient, $this->session->get('id'));
 		
-		$users=$this->users_model->get_all_consultatii_pacient($cnp);
-		$user->USERS=$users;
-		$CONTENT=$this->parser->parse("users/consultatii", $user, true);
+		//$user->USERS=$users;
+		//$user->CONSULTATII = $consultatii;
+		
+		$CONTENT=$this->parser->setData(array_merge($user, [
+			'CONSULTATII' => $consultatii
+		]))->render("users/consultatii");
 
 		$data = array(
 
-				    	"TITLE"=>$TITLE,
+				    	"TITLE" => $TITLE,
 
-						"CONTENT"=>$CONTENT				
+						"HEADER" => $HEADER,
+
+						"message" => '',
+
+						"CONTENT" => $CONTENT				
 
 					 );
 
-		$this->parser->parse("template/full-width",$data);			
+		return htmlspecialchars_decode($this->parser->setData($data)->render("template/full-width", $data));
 
 	}
 
@@ -476,7 +620,7 @@ function view_consultatii_pacient($cnp){
 
 	function edit_pacient($id_pacient = null){		
 		if ($this->session->get('tip_user') !== 0 || $this->session->get('id') === null || $id_pacient === null) {
-			return redirect('');
+			return redirect('/');
 		}
 
 		$TITLE = "Editare date pacient";
@@ -489,7 +633,7 @@ function view_consultatii_pacient($cnp){
 		$user= $this->userModel->get_pacient($id_pacient); //luare date din baza de date dupa id-ul clientului, pentru a le incarca in view
 
 		if ($user === null) {
-			return redirect('');
+			return redirect('/');
 		}
 
 		$CONTENT=$this->parser->setData($user)
@@ -515,7 +659,7 @@ function view_consultatii_pacient($cnp){
 	
 	function edit_done($id_pacient = null){	
 		if ($this->session->get('tip_user') !== 0 || $this->session->get('id') === null || $id_pacient === null) {
-			return redirect('');
+			return redirect('/');
 		}
 
 		$input = $this->request->getPost();
@@ -619,30 +763,44 @@ function view_consultatii_pacient($cnp){
                 redirect("users");*/
 	}
 	
-	function view_consult($id_consult){
+	function view_consultatie($id_consultatie = null){
+		if ($this->session->get('tip_user') !== 0 || $this->session->get('id') === null || $id_consultatie === null) {
+			return redirect('/');
+		}
 
 		$TITLE = "Detalii consult";
 
-		$user=$this->users_model->get_consult($id_consult);
+		$HEADER = $this->parser->setData([
+			'SITE_URL' => base_url(),
+			'BASE_URL' => base_url()
+		])->render('template/header');
 
+		$consultatie = $this->userModel->get_consultatie($id_consultatie);
+
+		if ($consultatie === null || $consultatie['id_doctor'] !== $this->session->get('id')) {
+			return redirect('/');
+		}
+
+		$pacient = $this->userModel->get_pacient($consultatie['id_pacient']);
 		//print_r($user);
 
 		
-		$CONTENT=$this->parser->parse('users/view_consult',$user,TRUE);	
-
-
+		$CONTENT = $this->parser->setData(array_merge($pacient,
+			$consultatie))->render('users/view_consult');	
 
 		$data = array(
 
-				    	"TITLE"=>$TITLE,
+				    	"TITLE" => $TITLE,
 
-						"CONTENT"=>$CONTENT				
+						"HEADER" => $HEADER,
 
-					 );
+						"message" => "",
 
-		
+						"CONTENT" => $CONTENT				
 
-		$this->parser->parse("template/full-width",$data);	
+		);
+
+		return htmlspecialchars_decode($this->parser->setData($data)->render("template/full-width"));	
 
 	}
 
@@ -654,32 +812,215 @@ function view_consultatii_pacient($cnp){
 
 	}
 	
-	function view_medic(){
-//print_r($this->session->userdata("cnp")); exit;
-		$TITLE = "Dete personale";
-		$cnp=$this->session->cnp;
-		//print_r($cnp); exit;
-		$user=$this->medici_model->get_medic_by_cnp($cnp);
+	function view_alerte_pacient($id_pacient = null) {
+		if ($this->session->get('tip_user') !== 0 || $this->session->get('id') === null || $id_pacient === null) {
+			return redirect('/');
+		}
 
-		//print_r($user); exit;
+		$TITLE = "Vizualizare alerte pacient";
 
-	
+		$HEADER = $this->parser->setData([
+			'SITE_URL' => base_url(),
+			'BASE_URL' => base_url()
+		])->render('template/header');
 
-		$CONTENT=$this->parser->parse('users/profile_medic',$user,TRUE);	
+		$pacient = $this->userModel->get_pacient($id_pacient);
 
+		if ($pacient === null) {
+			return redirect('/');
+		}
 
+		$alerte = $this->userModel->get_all_alerte_for_pacient($id_pacient, $this->session->get('id'));
+
+		$CONTENT = $this->parser->setData(array_merge($pacient, [
+			"ALERTE" => $alerte
+		]))->render('users/alerte');
 
 		$data = array(
 
-				    	"TITLE"=>$TITLE,
+			"TITLE" => $TITLE,
 
-						"CONTENT"=>$CONTENT				
+			"HEADER" => $HEADER,
 
-					 );
+			"message" => "",
 
+			"CONTENT" => $CONTENT				
+
+		);
+
+		return htmlspecialchars_decode($this->parser->setData($data)->render("template/full-width"));
+
+	}
+
+	function adauga_alerta_done($id_pacient = null) {
+		if ($this->session->get('tip_user') !== 0 || $this->session->get('id') === null || $id_pacient === null) {
+			return redirect('/');
+		}
+
+		$input = $this->request->getPost();
+
+		$pacient = $this->userModel->get_pacient($id_pacient);
+
+		if ($pacient === null) {
+			return redirect('/');
+		}
+
+		if (!$this->validator->setRules(self::alertaValidationRules)
+			->run($input)) {
+
+			$TITLE = "Adăugare alertă";
+	
+			$HEADER = $this->parser->setData([
+				'SITE_URL' => base_url(),
+				'BASE_URL' => base_url()
+			])->render('template/header');
+	
+			$CONTENT = $this->parser->setData(array_merge($pacient, $input))
+				->render('users/adauga_alerta');	
+	
+			$data = array(
+	
+							"TITLE" => $TITLE,
+	
+							"HEADER" => $HEADER,
+	
+							"message" => implode('<br/>', $this->validator->getErrors()),
+	
+							"CONTENT" => $CONTENT				
+	
+			);
+	
+			return htmlspecialchars_decode($this->parser->setData($data)->render("template/full-width"));
+		}
+
+		if ($this->userModel->add_alerta($id_pacient, $this->session->get('id'), $input) === null) {
+			
+			$TITLE = "Adăugare alertă";
+	
+			$HEADER = $this->parser->setData([
+				'SITE_URL' => base_url(),
+				'BASE_URL' => base_url()
+			])->render('template/header');
+	
+			$CONTENT = $this->parser->setData(array_merge($pacient, $input))
+				->render('users/adauga_alerta');	
+	
+			$data = array(
+	
+							"TITLE" => $TITLE,
+	
+							"HEADER" => $HEADER,
+	
+							"message" => "A apărut o eroare! Vă rugăm încercați din nou!",
+	
+							"CONTENT" => $CONTENT				
+	
+			);
+	
+			return htmlspecialchars_decode($this->parser->setData($data)->render("template/full-width"));
+		}
+		return redirect()->to(base_url().'view_alerte_pacient/'.$id_pacient);
+
+	}
+
+	function adauga_alerta($id_pacient = null) {
+		if ($this->session->get('tip_user') !== 0 || $this->session->get('id') === null || $id_pacient === null) {
+			return redirect('/');
+		}
+
+		$pacient = $this->userModel->get_pacient($id_pacient);
+
+		if ($pacient === null) {
+			return redirect('/');
+		}
+
+		$TITLE = "Adăugare alertă";
 		
+		$HEADER = $this->parser->setData([
+			'SITE_URL' => base_url(),
+			'BASE_URL' => base_url()
+		])->render('template/header');
 
-		$this->parser->parse("template/full-width",$data);		
+		$CONTENT = $this->parser->setData(array_merge($pacient, [
+			'durata_ecg_P_min' => '0.01',
+			'durata_ecg_P_max' => '0.08',
+			'durata_ecg_PR_min' => '0.12',
+			'durata_ecg_PR_max' => '0.20',
+			'amplitudine_ecg_QRS_poz_min' => '0.5',
+			'amplitudine_ecg_QRS_poz_max' => '2.5',
+			'amplitudine_ecg_QRS_neg_min' => '1.0',
+			'amplitudine_ecg_QRS_neg_max' => '3.0',
+			'durata_ecg_QRS_min' => '0.01',
+			'durata_ecg_QRS_max' => '0.12',
+			'durata_ecg_ST_min' => '0.01',
+			'durata_ecg_ST_max' => '0.08',
+			'amplitudine_ecg_T_min' => '0.1',
+			'amplitudine_ecg_T_max' => '0.2',
+			'durata_ecg_T_min' => '0.16',
+			'durata_ecg_T_max' => '0.16',
+			'val_min_puls' => '60',
+			'val_max_puls' => '100',
+			'val_min_umiditate' => '35',
+			'val_max_umiditate' => '50',
+			'val_min_temperatura' => '37.0',
+			'val_max_temperatura' => '37.8',
+			'mesaj_alerta' => ''
+		]))->render('users/adauga_alerta');	
+
+		$data = array(
+
+				    	"TITLE" => $TITLE,
+
+						"HEADER" => $HEADER,
+
+						"message" => "",
+
+						"CONTENT" => $CONTENT				
+
+		);
+		return htmlspecialchars_decode($this->parser->setData($data)->render("template/full-width"));
+
+	}
+
+	function view_medic() {
+		if ($this->session->get('tip_user') !== 0 || $this->session->get('id') === null) {
+			return redirect('/');
+		}
+
+		//print_r($this->session->userdata("cnp")); exit;
+		
+		$TITLE = "Date personale";
+		
+		$HEADER = $this->parser->setData([
+			'SITE_URL' => base_url(),
+			'BASE_URL' => base_url()
+		])->render('template/header');
+
+		//print_r($cnp); exit;
+		
+		$user = $this->userModel->get_medic($this->session->get('id'));
+
+		if ($user === null) {
+			return redirect('/');
+		}
+
+		//print_r($user); exit;
+
+		$CONTENT = $this->parser->setData($user)->render('users/profile_medic');	
+
+		$data = array(
+
+				    	"TITLE" => $TITLE,
+
+						"HEADER" => $HEADER,
+
+						"message" => "",
+
+						"CONTENT" => $CONTENT				
+
+		);
+
+		return htmlspecialchars_decode($this->parser->setData($data)->render("template/full-width"));		
 
 	}
 

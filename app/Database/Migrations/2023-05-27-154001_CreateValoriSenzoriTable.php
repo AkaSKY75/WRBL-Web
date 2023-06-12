@@ -21,6 +21,11 @@ class CreateValoriSenzoriTable extends Migration
                 'constraint' => 5,
                 'unsigned' => true,
            ],
+           'is_alert' => [
+                'type' => 'INT',
+                'constraint' => 2,
+                'unsigned' => true,
+           ],
            'val_senzor_puls' => [
                 'type' => 'INT',
                 'constraint' => 3,

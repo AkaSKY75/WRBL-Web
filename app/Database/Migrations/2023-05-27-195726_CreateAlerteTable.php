@@ -108,12 +108,12 @@ class CreateAlerteTable extends Migration
             ],
             'val_min_puls' => [
                 'type' => 'INT',
-                'constraint' => 4,
+                'constraint' => 3,
                 'unsigned' => true,
             ],
             'val_max_puls' => [
                 'type' => 'INT',
-                'constraint' => 4,
+                'constraint' => 3,
                 'unsigned' => true,
             ],
             'val_min_umiditate' => [
