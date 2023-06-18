@@ -56,7 +56,7 @@ $routes->post('/admin/edit_done/(:num)', 'Admin::edit_done/$1');
 $routes->post('/admin/add_done1', 'Admin::add_done1');
 $routes->post('/login/done', 'Login::done');
 $routes->post('/api/smartphone/login', 'API::SmartphoneLogin');
-$routes->post('/api/smartphone/sensors', 'API::SmartphoneSensors');
+$routes->post('/api/smartphone/add/valori_senzor', 'API::SmartphoneAddValoriSenzor');
 $routes->get('/api/hl7/fhir', 'API::GetDataFromHL7FHIR'); // this should be post
 
 /*

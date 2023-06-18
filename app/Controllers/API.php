@@ -2,15 +2,32 @@
 
 namespace App\Controllers; 
 use CodeIgniter\HTTP\ResponseInterface;
-
+use Config\Services;
 class API extends BaseController
 {
     public $error_json;
     private const APP_ID = 'YzfeftUVcZ6twZw1OoVKPRFYTrGEg01Q';
     private const APP_SECRET = '4G91qSoboqYO4Y0XJ0LPPKIsq8reHdfa';
     private $userModel;
+    protected $validator;
+    private const validareLogin = [
+      'cnp'      => 'required|numeric|exact_length[13]|valid_cnp',
+      'password' => 'required|min_length[8]'
+    ];
+    private const validareAddValoriSenzori = [
+      'id_pacient'             => 'required|numeric|less_than[100000]',
+      'val_senzor_ecg'         => 'required|numeric|exact_length[40000]',
+      'val_senzor_puls'        => 'required|numeric|less_than[255]',
+      'val_senzor_umiditate'   => 'required|decimal|exact_length[5]',
+      'val_senzor_temperatura' => 'required|decimal|exact_length[5]',
+      'is_alert'               => 'required|numeric|less_than[16]',
+      'accelerometru_x'        => 'required|decimal|max_length[5]',
+      'accelerometru_y'        => 'required|decimal|max_length[5]',
+      'accelerometru_z'        => 'required|decimal|max_length[5]'
+    ];
     function __construct() {
       $this->userModel = model("UserModel");
+      $this->validator = Services::Validation();
     }
     protected function JSONValidation()
     {
@@ -99,6 +116,53 @@ class API extends BaseController
         return null;
     }
 
+    public function SmartphoneAddValoriSenzor() {
+      $body = $this->GetDataFromSmartphone();
+      if ($body == null) {
+        return $this->response
+                  ->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST)
+                  ->setJSON($this->error_json);
+      }
+      if (!$this->validator->setRules(self::validareAddValoriSenzori)
+        ->run($body)) {
+        return $this->response
+                  ->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST)
+                  ->setJSON([
+                    'status' => 'failure',
+                    'data' => null,
+                    'message' => ''.implode(',', $this->validator->getErrors())
+                  ]);        
+      }
+      $pacient = $this->userModel->get_pacient($body['id_pacient']);
+
+      if ($pacient === null) {
+        return $this->response
+                  ->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST)
+                  ->setJSON([
+                    'status' => 'failure',
+                    'data' => null,
+                    'message' => 'Patient doesn\'t exist!'
+                  ]);
+      }
+
+      if ($this->userModel->add_valori_senzori($body) === null) {
+        return $this->response
+                  ->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR)
+                  ->setJSON([
+                    'status' => 'failure',
+                    'data' => null,
+                    'message' => 'An error occurred!'
+                  ]);  
+      }
+      return $this->response
+                ->setStatusCode(ResponseInterface::HTTP_OK)
+                ->setJSON([
+                  'status' => 'success',
+                  'data' => null,
+                  'message' => 'Valori senzor added!'
+                ]);  
+    }
+
     public function SmartphoneLogin()
     {
       $body = $this->GetDataFromSmartphone();
@@ -107,15 +171,16 @@ class API extends BaseController
                   ->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST)
                   ->setJSON($this->error_json);
       }
-      if (!array_key_exists('cnp', $body) || !array_key_exists('parola', $body)) {
+      /*if (!$this->validator->setRules(self::validareLogin)
+        ->run($body)) {
         return $this->response
                   ->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST)
                   ->setJSON([
                     'status' => 'failure',
                     'data' => null,
-                    'message' => 'Missing required fields!'
+                    'message' => 'Bad fields!'
                   ]);        
-      }
+      }*/
       $pacient = $this->userModel->get_pacient($body['cnp'], $body['parola']);
       if ($pacient == null) {
         return $this->response
@@ -130,6 +195,7 @@ class API extends BaseController
       $example = [
         "PACIENTI" => [
           "20230610T162731Z" => [
+            "id" => "0",
             "id_doctor" => "0",
             "nume" => "Ionescu",
             "prenume" => "Georgescu",
@@ -153,6 +219,7 @@ class API extends BaseController
         ],
         "RECOMANDARI" => [
           "20230610T161754Z" => [
+            "id" => "0",
             "id_doctor" => "0",
             "tip" => "bicicleta",
             "durata" => "30",
@@ -160,6 +227,7 @@ class API extends BaseController
             "state" => "0"
           ],
           "20230609T123410Z" => [
+            "id" => "1",
             "id_doctor" => "0",
             "tip" => "înot",
             "durata" => "120",

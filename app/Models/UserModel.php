@@ -26,7 +26,7 @@ Class UsersModel extends Model{
             'SMTPPort' => 465,
             'SMTPCrypto' => 'ssl',
             'SMTPUser' => 'danaurelianmircea@gmail.com',
-            'SMTPPass' => '',
+            'SMTPPass' => 'rjklljefilazujmp',
             'mailType'  => 'html', 
             'charset'   => 'utf-8',
             'newline'  => "\r\n"
@@ -65,6 +65,15 @@ Class UsersModel extends Model{
             return null;
         }
     }
+
+    /* Senzori */
+
+    public function add_valori_senzori($input) {
+        $this->Valori_Senzori->insert($input);
+        return $this->Valori_Senzori->getInsertID();
+    }
+
+    /* Pacient*/
 
     public function update_pacient($id_pacient, $data) {
         return $this->Pacient->where([

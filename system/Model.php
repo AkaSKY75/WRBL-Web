@@ -449,7 +449,7 @@ class Model extends BaseModel
 
             if ($this->useTimestamps && $this->updatedField) {
                 //$set[$this->updatedField] = $this->setDate();
-                $set[$this->updatedField] = date('d-M-y H:i:s');
+                $set[$this->updatedField] = date('d-M-y H:i:s A');
             }
 
             return $builder->update($set);
