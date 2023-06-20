@@ -10,7 +10,9 @@ Class UsersModel extends Model{
     private $Alerte;
     private $Recomandari;
     private $Valori_Senzori;
+    private $Consultatii;
     private $email;
+    protected $db;
     public function __construct() {
         $this->Administrator = model('Administrator');
         $this->Pacient = model('Pacient');
@@ -32,6 +34,7 @@ Class UsersModel extends Model{
             'newline'  => "\r\n"
         ];
         $this->email = Services::email()->initialize($email_config);
+        $this->db = \Config\Database::connect();
     }
     public function try_login($email, $password) {
         $Administrator = $this->Administrator->orWhere([
@@ -68,8 +71,94 @@ Class UsersModel extends Model{
 
     /* Senzori */
 
+    public function get_valori_senzori($id_pacient) {
+        return $this->Valori_Senzori->where([
+            'id_pacient' => $id_pacient
+        ])->findAll();
+    }
+
     public function add_valori_senzori($input) {
-        $this->Valori_Senzori->insert($input);
+
+        $ociConnection = $this->db->connID;
+
+        $sql = 'INSERT INTO VALORI_SENZORI ("id", "id_pacient",'.
+        '"val_senzor_ecg", "val_senzor_puls", "val_senzor_temperatura",'.
+        '"val_senzor_umiditate", "accelerometru_x", "accelerometru_y",'.
+        '"accelerometru_z", "is_alert", "created_at", "updated_at",'.
+        '"deleted_at") VALUES (:id, :id_pacient, :val_senzor_ecg,'.
+        ':val_senzor_puls, :val_senzor_temperatura,'.
+        ':val_senzor_umiditate, :accelerometru_x, :accelerometru_y,'.
+        ':accelerometru_z, :is_alert, TO_TIMESTAMP(:created_at,'.
+        '\'YYYY-MM-DD HH24:MI:SS\'), TO_TIMESTAMP(:updated_at,'.
+        '\'YYYY-MM-DD HH24:MI:SS\'), TO_TIMESTAMP(:deleted_at,'.
+        '\'YYYY-MM-DD HH24:MI:SS\')) RETURNING "id" INTO :inserted_id';
+
+        $stmt = oci_parse($ociConnection, $sql);
+        $null_val = null;
+        $now = date('Y-m-d H:i:s');
+        // Initialize the insertedId variable
+        $insertedId = null;
+
+        // Bind the values to the parameters
+        oci_bind_by_name($stmt, ':id', $null_val);
+        oci_bind_by_name($stmt, ':id_pacient', $input['id_pacient']);
+        oci_bind_by_name($stmt, ':val_senzor_ecg', hex2bin($input['val_senzor_ecg']), -1, SQLT_BIN);
+        oci_bind_by_name($stmt, ':val_senzor_puls', $input['val_senzor_puls']);
+        oci_bind_by_name($stmt, ':val_senzor_temperatura', $input['val_senzor_temperatura']);
+        oci_bind_by_name($stmt, ':val_senzor_umiditate', $input['val_senzor_umiditate']);
+        oci_bind_by_name($stmt, ':accelerometru_x', $input['accelerometru_x']);
+        oci_bind_by_name($stmt, ':accelerometru_y', $input['accelerometru_y']);
+        oci_bind_by_name($stmt, ':accelerometru_z', $input['accelerometru_z']);
+        oci_bind_by_name($stmt, ':is_alert', $input['is_alert']);
+        oci_bind_by_name($stmt, ':created_at', $now);
+        oci_bind_by_name($stmt, ':updated_at', $now);
+        oci_bind_by_name($stmt, ':deleted_at', $null_val);
+        oci_bind_by_name($stmt, ':inserted_id', $insertedId, 5);
+
+        // Execute the query
+        oci_execute($stmt);
+
+        $insertedId = intval($insertedId);
+
+        /*$stmt = $this->db->connID->prepare('INSERT INTO VALORI_SENZORI (id_pacient,'.
+        'val_senzori_ecg, val_senzor_puls, val_senzor_temperatura,'.
+        'val_senzor_umiditate, accelerometru_x, accelerometru_y,'.
+        'accelerometru_z, is_alert) VALUES (:id_pacient, EMPTY_BLOB(),'.
+        ':val_senzor_temperatura, :val_senzor_umiditate,'.
+        ':accelerometru_x, :accelerometru_y,'.
+        ':accelerometru_z, :is_alert)');*/
+        
+        /*$stmt->bindParam(':id_pacient', $input['id_pacient']);
+        $stmt->bindParam(':val_senzor_ecg', hex2bin($input['val_senzor_ecg']), \PDO::PARAM_LOB);
+        $stmt->bindParam(':val_senzor_temperatura', $input['val_senzor_temperatura']);
+        $stmt->bindParam(':val_senzor_umiditate', $input['val_senzor_umiditate']);
+        $stmt->bindParam(':accelerometru_x', $input['accelerometru_x']);
+        $stmt->bindParam(':accelerometru_y', $input['accelerometru_y']);
+        $stmt->bindParam(':accelerometru_z', $input['accelerometru_z']);
+        $stmt->bindParam(':is_alert', $input['is_alert']);
+
+        $stmt->execute();*/
+
+        
+
+        // Prepare the SQL statement
+        /*$stmt = $this->db->prepare("INSERT INTO VALORI_SENZORI (id_pacient, val_senzor_ecg".
+        ", hex_data) VALUES (:field1, :field2, :hex_data)");
+
+        // Bind the values to the parameters
+        $stmt->bindParam(':field1', $field1);
+        $stmt->bindParam(':field2', $field2);
+        $stmt->bindParam(':hex_data', hex2bin($hexString));
+
+        // Execute the query
+        $stmt->execute();*/
+        //$val_senzor_ecg = $input['val_senzor_ecg'];
+        //$input['val_senzor_ecg'] = substr($val_senzor_ecg, 0, 4000);
+        /*$input['val_senzor_ecg'] = hex2bin($input['val_senzor_ecg']);
+        $this->Valori_Senzori->insert($input);*/
+        //$id = $this->Valori_Senzori->getInsertID();
+        //return $id;
+        //throw new \Exception($insertedId);
         return $this->Valori_Senzori->getInsertID();
     }
 

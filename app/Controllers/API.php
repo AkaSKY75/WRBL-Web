@@ -12,11 +12,11 @@ class API extends BaseController
     protected $validator;
     private const validareLogin = [
       'cnp'      => 'required|numeric|exact_length[13]|valid_cnp',
-      'password' => 'required|min_length[8]'
+      'parola' => 'required|min_length[8]'
     ];
     private const validareAddValoriSenzori = [
       'id_pacient'             => 'required|numeric|less_than[100000]',
-      'val_senzor_ecg'         => 'required|numeric|exact_length[40000]',
+      'val_senzor_ecg'         => 'required|regex_match[/^[0-9A-Fa-f]+$/]|exact_length[40000]',
       'val_senzor_puls'        => 'required|numeric|less_than[255]',
       'val_senzor_umiditate'   => 'required|decimal|exact_length[5]',
       'val_senzor_temperatura' => 'required|decimal|exact_length[5]',
@@ -154,11 +154,123 @@ class API extends BaseController
                     'message' => 'An error occurred!'
                   ]);  
       }
+
+      $example = [
+        "PACIENTI" => [
+          "20230610T162731Z" => [
+            "id" => "0",
+            "id_doctor" => "0",
+            "nume" => "Ionescu",
+            "prenume" => "Georgescu",
+            "varsta" => "30",
+            "cnp" => "1700928416180",
+            "localitate" => "Timișoara",
+            "judet" => "Timis",
+            "strada" => "Alexandru Vaida-Voievod",
+            "bloc" => "Camin 9C",
+            "scara" => "-",
+            "etaj" => "2",
+            "apartament" => "219",
+            "numar" => "-",
+            "telefon" => "0734937891",
+            "email" => "ionescu.georgescu@yahoo.com",
+            "profesie" => "programator",
+            "loc_de_munca" => "Continental",
+            "istoric_medicla" => "Operație de apendicită realizată în anul 2016",
+            "alergii" => "Ibuprofen"
+          ]
+        ],
+        "RECOMANDARI" => [
+          "20230610T161754Z" => [
+            "id" => "0",
+            "id_doctor" => "0",
+            "tip" => "bicicleta",
+            "durata" => "30",
+            "alte_indicatii" => "-",
+            "state" => "0"
+          ],
+          "20230609T123410Z" => [
+            "id" => "1",
+            "id_doctor" => "0",
+            "tip" => "înot",
+            "durata" => "120",
+            "alte_indicatii" => "-",
+            "state" => "1"
+          ]
+        ],
+        "ALERTE" => [
+          "20230610T163120Z" => [
+            "id_doctor" => "0",
+            "durata_ecg_P_min" => "0.01",
+            "durata_ecg_P_max" => "0.08",
+            "durata_ecg_PR_min" => "0.12",
+            "durata_ecg_PR_max" => "0.20",
+            "amplitudine_ecg_QRS_poz_min" => "0.5",
+            "amplitudine_ecg_QRS_poz_max" => "2.5",
+            "amplitudine_ecg_QRS_neg_min" => "1.0",
+            "amplitudine_ecg_QRS_neg_max" => "3.0",
+            "durata_ecg_QRS_min" => "0.01",
+            "durata_ecg_QRS_max" => "0.12",
+            "durata_ecg_ST_min" => "0.01",
+            "durata_ecg_ST_max" => "0.08",
+            "amplitudine_ecg_T_min" => "0.1",
+            "amplitudine_ecg_T_max" => "0.2",
+            "durata_ecg_T_min" => "0.16",
+            "durata_ecg_T_max" => "0.16",
+            "val_min_puls" => "60",
+            "val_max_puls" => "100",
+            "val_min_umiditate" => "35",
+            "val_max_umiditate" => "50",
+            "val_min_temperatura" => "37.0",
+            "val_max_temperatura" => "37.8"
+          ]
+        ],
+        "VALORI_SENZORI" => [
+          "20230611T151151Z" => [
+            "is_alert" => "0",
+            "val_senzor_ecg" => "(16000 valori)",
+            "val_senzor_puls" => "80",
+            "val_senzor_umiditate" => "40",
+            "val_senzor_temperatura" => "37.2",
+            "accelerometru_x" => "-9.81",
+            "accelerometru_y" => "0",
+            "accelerometru_z" => "0"
+          ],
+          "20230611T145134Z" => [
+            "is_alert" => "14",
+            "val_senzor_ecg" => "(16000 valori)",
+            "val_senzor_puls" => "102",
+            "val_senzor_umiditate" => "51",
+            "val_senzor_temperatura" => "37.9",
+            "accelerometru_x" => "-9.81",
+            "accelerometru_y" => "0",
+            "accelerometru_z" => "0"
+          ]
+        ]
+      ];
+      
+      $val_hex = bin2hex($this->userModel->get_valori_senzori($body['id_pacient'])[0]['val_senzor_ecg']);
+      $output = '';
+      $byteSize = 4; // Number of bytes in each value
+      $bufferLength = strlen($val_hex);
+
+      // Iterate over the buffer, processing 4 bytes at a time
+      for ($i = 0; $i < $bufferLength; $i += $byteSize) {
+          // Extract the 4 bytes from the buffer
+          $bytes = substr($val_hex, $i, $byteSize);
+
+          // Convert the bytes to decimal
+          $decimalValue = hexdec($bytes);
+
+          // Print or store the decimal value
+          $output = $output . number_format(($decimalValue*5/1023.0)*1000.0,2,'.','') . 'mV ';
+      }
+      
       return $this->response
                 ->setStatusCode(ResponseInterface::HTTP_OK)
                 ->setJSON([
                   'status' => 'success',
-                  'data' => null,
+                  'data' => $output,//$example,
                   'message' => 'Valori senzor added!'
                 ]);  
     }
@@ -178,7 +290,7 @@ class API extends BaseController
                   ->setJSON([
                     'status' => 'failure',
                     'data' => null,
-                    'message' => 'Bad fields!'
+                    'message' => implode('\n', $this->validator->getErrors())
                   ]);        
       }*/
       $pacient = $this->userModel->get_pacient($body['cnp'], $body['parola']);
@@ -188,7 +300,7 @@ class API extends BaseController
                   ->setJSON([
                     'status' => 'failure',
                     'data' => null,
-                    'message' => 'CNP sau parola incorecte!'
+                    'message' => 'CNP sau parola incorecta!'
                   ]);
       }
 
